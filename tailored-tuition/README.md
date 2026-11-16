@@ -27,24 +27,34 @@ the same frontend can become a PWA, or be wrapped with Capacitor, without a rewr
 
 ## Quick demo on your laptop (one command)
 
-You need **Git**, **Python 3.12+** and **Node.js 22 LTS** installed. Then:
+### Windows
 
-```bash
-git clone https://github.com/siddharthgorti/siddharthgorti.git
-cd siddharthgorti
-git checkout claude/markdown-review-tool-dev-am64cs
-cd tailored-tuition
-./demo.sh                                                   # macOS / Linux
-powershell -ExecutionPolicy Bypass -File .\demo.ps1          # Windows
-```
+1. Install, accepting the defaults:
+   - **Git**: https://git-scm.com/download/win
+   - **Python 3.13**: https://www.python.org/downloads/ (pick 3.13 rather than the very newest
+     release; brand-new Python versions often lack ready-made packages for some dependencies)
+   - **Node.js LTS**: https://nodejs.org/
+2. Open a **new** PowerShell window (Start menu → "PowerShell"), so it sees the new installs, and run:
+   ```powershell
+   git clone https://github.com/siddharthgorti/siddharthgorti.git
+   cd siddharthgorti
+   git checkout claude/markdown-review-tool-dev-am64cs
+   cd tailored-tuition
+   powershell -ExecutionPolicy Bypass -File .\demo.ps1
+   ```
+3. If Windows Firewall asks about **Node.js**, tick **Private networks** and click **Allow**.
+
+### macOS / Linux
+
+With Git, Python 3.12–3.14 and Node.js LTS installed, run `./demo.sh` from the same folder instead.
 
 The first run takes a few minutes (installing and building); later runs start in seconds. The
 script prints two addresses:
 
 - **On this computer:** http://localhost:3000
 - **On a phone (same Wi-Fi):** `http://<your-laptop-ip>:3000`, so people can try it on their own
-  phones. If your OS asks whether to allow incoming connections, say yes. Public or guest Wi-Fi often
-  blocks device-to-device traffic; a phone hotspot works.
+  phones. On Windows this needs your Wi-Fi set to **Private** (the script warns you if it's Public).
+  Public or guest Wi-Fi often blocks device-to-device traffic; a phone hotspot works.
 
 **Showing it to several people:** tap your name (top right) → *New student*, so each person gets
 their own onboarding and progress. Earlier students' progress stays saved.
