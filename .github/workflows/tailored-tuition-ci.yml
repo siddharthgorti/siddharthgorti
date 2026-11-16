@@ -1,0 +1,26 @@
+name: tailored-tuition CI
+on:
+  push:
+    paths: ["tailored-tuition/**", ".github/workflows/tailored-tuition-ci.yml"]
+  pull_request:
+    paths: ["tailored-tuition/**"]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: tailored-tuition/backend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -r requirements-dev.txt
+      - run: ruff check app tests && ruff format --check app tests
+      - run: pytest
+  frontend:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: tailored-tuition/frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22", cache: npm, cache-dependency-path: tailored-tuition/frontend/package-lock.json }
+      - run: npm ci
+      - run: npm run lint && npm run typecheck && npm run build

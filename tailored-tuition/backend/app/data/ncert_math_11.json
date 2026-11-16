@@ -1,0 +1,510 @@
+{
+ "subject": "Mathematics",
+ "grade": 11,
+ "board": "CBSE",
+ "source_note": "Concept list follows the chapter structure of the NCERT Class 11 Mathematics textbook (rationalised edition). Descriptions are original summaries, not textbook text.",
+ "concepts": [
+  {
+   "id": "sets_basics",
+   "name": "Sets & Notation",
+   "chapter": 1,
+   "prerequisites": [],
+   "description": "What a set is, roster and set-builder form, empty/finite/infinite sets, subsets and power sets.",
+   "keywords": [
+    "set",
+    "element",
+    "roster",
+    "set-builder",
+    "subset",
+    "power set",
+    "empty set",
+    "universal"
+   ]
+  },
+  {
+   "id": "set_operations",
+   "name": "Union, Intersection & Complement",
+   "chapter": 1,
+   "prerequisites": [
+    "sets_basics"
+   ],
+   "description": "Union, intersection, difference and complement of sets, and the laws they obey (including De Morgan's laws).",
+   "keywords": [
+    "union",
+    "intersection",
+    "complement",
+    "difference",
+    "de morgan",
+    "disjoint"
+   ]
+  },
+  {
+   "id": "venn_diagrams",
+   "name": "Venn Diagrams & Counting",
+   "chapter": 1,
+   "prerequisites": [
+    "set_operations"
+   ],
+   "description": "Using Venn diagrams to visualise set operations and to solve counting problems with n(A ∪ B) = n(A) + n(B) − n(A ∩ B).",
+   "keywords": [
+    "venn",
+    "n(a",
+    "counting",
+    "cardinal"
+   ]
+  },
+  {
+   "id": "cartesian_product",
+   "name": "Cartesian Products",
+   "chapter": 2,
+   "prerequisites": [
+    "sets_basics"
+   ],
+   "description": "Ordered pairs and the Cartesian product A × B; number of elements in A × B.",
+   "keywords": [
+    "ordered pair",
+    "cartesian product",
+    "a × b",
+    "a x b"
+   ]
+  },
+  {
+   "id": "relations",
+   "name": "Relations",
+   "chapter": 2,
+   "prerequisites": [
+    "cartesian_product"
+   ],
+   "description": "A relation as a subset of A × B; domain, codomain and range of a relation.",
+   "keywords": [
+    "relation",
+    "domain",
+    "codomain",
+    "range",
+    "arrow diagram"
+   ]
+  },
+  {
+   "id": "functions",
+   "name": "Functions",
+   "chapter": 2,
+   "prerequisites": [
+    "relations"
+   ],
+   "description": "Functions as special relations; real functions and their graphs (identity, constant, polynomial, modulus, signum, greatest integer); algebra of functions.",
+   "keywords": [
+    "function",
+    "real function",
+    "modulus",
+    "signum",
+    "greatest integer",
+    "graph"
+   ]
+  },
+  {
+   "id": "angle_measure",
+   "name": "Angles & Radian Measure",
+   "chapter": 3,
+   "prerequisites": [],
+   "description": "Degree and radian measure and converting between them; arc length s = rθ.",
+   "keywords": [
+    "radian",
+    "degree",
+    "angle",
+    "arc"
+   ]
+  },
+  {
+   "id": "trig_functions",
+   "name": "Trigonometric Functions",
+   "chapter": 3,
+   "prerequisites": [
+    "angle_measure",
+    "functions"
+   ],
+   "description": "Trigonometric functions of any angle, signs in each quadrant, domains, ranges and graphs.",
+   "keywords": [
+    "sine",
+    "cosine",
+    "tangent",
+    "sin",
+    "cos",
+    "tan",
+    "quadrant",
+    "trigonometric function"
+   ]
+  },
+  {
+   "id": "trig_identities",
+   "name": "Sum & Difference Formulae",
+   "chapter": 3,
+   "prerequisites": [
+    "trig_functions"
+   ],
+   "description": "Trigonometric functions of sums and differences of angles and the identities derived from them (double angle, product to sum).",
+   "keywords": [
+    "identity",
+    "sum",
+    "difference",
+    "double angle",
+    "cos(x+y)",
+    "sin(x+y)"
+   ]
+  },
+  {
+   "id": "complex_numbers",
+   "name": "Complex Numbers",
+   "chapter": 4,
+   "prerequisites": [],
+   "description": "The imaginary unit i, complex numbers a + ib, real and imaginary parts, equality.",
+   "keywords": [
+    "complex",
+    "imaginary",
+    "iota",
+    "a + ib",
+    "i^2"
+   ]
+  },
+  {
+   "id": "complex_algebra",
+   "name": "Algebra of Complex Numbers",
+   "chapter": 4,
+   "prerequisites": [
+    "complex_numbers"
+   ],
+   "description": "Addition, multiplication, division, conjugate and modulus of complex numbers; powers of i.",
+   "keywords": [
+    "conjugate",
+    "modulus",
+    "multiplicative inverse",
+    "powers of i"
+   ]
+  },
+  {
+   "id": "argand_plane",
+   "name": "Argand Plane & Polar Form",
+   "chapter": 4,
+   "prerequisites": [
+    "complex_algebra",
+    "trig_functions"
+   ],
+   "description": "Representing complex numbers on the Argand plane; modulus–argument (polar) form.",
+   "keywords": [
+    "argand",
+    "polar",
+    "argument",
+    "plane"
+   ]
+  },
+  {
+   "id": "quadratic_complex_roots",
+   "name": "Quadratics with Complex Roots",
+   "chapter": 4,
+   "prerequisites": [
+    "complex_algebra"
+   ],
+   "description": "Solving quadratic equations with negative discriminant using complex numbers.",
+   "keywords": [
+    "quadratic",
+    "discriminant",
+    "roots",
+    "ax^2"
+   ]
+  },
+  {
+   "id": "linear_inequalities",
+   "name": "Linear Inequalities",
+   "chapter": 5,
+   "prerequisites": [],
+   "description": "Solving linear inequalities in one variable algebraically and graphically, and representing solutions on the number line.",
+   "keywords": [
+    "inequality",
+    "inequalities",
+    "number line",
+    "solution set"
+   ]
+  },
+  {
+   "id": "fundamental_counting",
+   "name": "Fundamental Principle of Counting",
+   "chapter": 6,
+   "prerequisites": [],
+   "description": "Multiplication principle for counting the number of ways a sequence of choices can be made.",
+   "keywords": [
+    "counting principle",
+    "fundamental principle",
+    "ways"
+   ]
+  },
+  {
+   "id": "permutations",
+   "name": "Permutations",
+   "chapter": 6,
+   "prerequisites": [
+    "fundamental_counting"
+   ],
+   "description": "Arrangements: factorial notation, nPr, permutations with repeated objects.",
+   "keywords": [
+    "permutation",
+    "arrangement",
+    "factorial",
+    "npr",
+    "n!"
+   ]
+  },
+  {
+   "id": "combinations",
+   "name": "Combinations",
+   "chapter": 6,
+   "prerequisites": [
+    "permutations"
+   ],
+   "description": "Selections: nCr, its relation to nPr, and standard identities.",
+   "keywords": [
+    "combination",
+    "selection",
+    "ncr",
+    "choose"
+   ]
+  },
+  {
+   "id": "binomial_theorem",
+   "name": "Binomial Theorem",
+   "chapter": 7,
+   "prerequisites": [
+    "combinations"
+   ],
+   "description": "Expansion of (a + b)^n for positive integer n, Pascal's triangle, general and middle terms.",
+   "keywords": [
+    "binomial",
+    "expansion",
+    "pascal",
+    "general term"
+   ]
+  },
+  {
+   "id": "arithmetic_progressions",
+   "name": "Arithmetic Progressions",
+   "chapter": 8,
+   "prerequisites": [],
+   "description": "Sequences and series; nth term and sum of an AP.",
+   "keywords": [
+    "sequence",
+    "series",
+    "arithmetic progression",
+    "a.p",
+    "common difference"
+   ]
+  },
+  {
+   "id": "geometric_progressions",
+   "name": "Geometric Progressions",
+   "chapter": 8,
+   "prerequisites": [
+    "arithmetic_progressions"
+   ],
+   "description": "nth term and sum of n terms of a GP; infinite GP.",
+   "keywords": [
+    "geometric progression",
+    "g.p",
+    "common ratio"
+   ]
+  },
+  {
+   "id": "am_gm",
+   "name": "Arithmetic & Geometric Means",
+   "chapter": 8,
+   "prerequisites": [
+    "geometric_progressions"
+   ],
+   "description": "Arithmetic mean, geometric mean and the relation A ≥ G.",
+   "keywords": [
+    "arithmetic mean",
+    "geometric mean",
+    "a.m",
+    "g.m"
+   ]
+  },
+  {
+   "id": "slope_of_line",
+   "name": "Slope of a Line",
+   "chapter": 9,
+   "prerequisites": [],
+   "description": "Slope from inclination and two points; parallel and perpendicular lines; angle between lines; collinearity.",
+   "keywords": [
+    "slope",
+    "inclination",
+    "gradient",
+    "parallel",
+    "perpendicular"
+   ]
+  },
+  {
+   "id": "line_equations",
+   "name": "Equations of a Line",
+   "chapter": 9,
+   "prerequisites": [
+    "slope_of_line"
+   ],
+   "description": "Point-slope, two-point, slope-intercept and intercept forms; general equation of a line.",
+   "keywords": [
+    "point-slope",
+    "intercept",
+    "equation of a line",
+    "two-point"
+   ]
+  },
+  {
+   "id": "distance_point_line",
+   "name": "Distance of a Point from a Line",
+   "chapter": 9,
+   "prerequisites": [
+    "line_equations"
+   ],
+   "description": "Perpendicular distance of a point from a line and distance between parallel lines.",
+   "keywords": [
+    "distance",
+    "perpendicular distance",
+    "parallel lines"
+   ]
+  },
+  {
+   "id": "circles",
+   "name": "Circles",
+   "chapter": 10,
+   "prerequisites": [
+    "line_equations"
+   ],
+   "description": "Conic sections introduction; equation of a circle from centre and radius; general form.",
+   "keywords": [
+    "circle",
+    "radius",
+    "centre",
+    "conic"
+   ]
+  },
+  {
+   "id": "parabola_ellipse_hyperbola",
+   "name": "Parabola, Ellipse & Hyperbola",
+   "chapter": 10,
+   "prerequisites": [
+    "circles"
+   ],
+   "description": "Standard equations, foci, axes, eccentricity and latus rectum of parabola, ellipse and hyperbola.",
+   "keywords": [
+    "parabola",
+    "ellipse",
+    "hyperbola",
+    "focus",
+    "eccentricity",
+    "latus rectum",
+    "directrix"
+   ]
+  },
+  {
+   "id": "coordinates_3d",
+   "name": "Three Dimensional Geometry",
+   "chapter": 11,
+   "prerequisites": [
+    "slope_of_line"
+   ],
+   "description": "Coordinate axes and planes in 3D, coordinates of a point, distance formula in space.",
+   "keywords": [
+    "three dimensional",
+    "3d",
+    "octant",
+    "coordinate planes",
+    "space"
+   ]
+  },
+  {
+   "id": "limits",
+   "name": "Limits",
+   "chapter": 12,
+   "prerequisites": [
+    "functions"
+   ],
+   "description": "Intuitive idea of a limit, algebra of limits, limits of polynomial, rational and trigonometric functions.",
+   "keywords": [
+    "limit",
+    "lim",
+    "approaches"
+   ]
+  },
+  {
+   "id": "derivatives",
+   "name": "Derivatives",
+   "chapter": 12,
+   "prerequisites": [
+    "limits"
+   ],
+   "description": "Derivative as a limit; derivatives of polynomial and trigonometric functions; rules for sums, products and quotients.",
+   "keywords": [
+    "derivative",
+    "differentiation",
+    "first principle",
+    "d/dx"
+   ]
+  },
+  {
+   "id": "mean_deviation",
+   "name": "Measures of Dispersion",
+   "chapter": 13,
+   "prerequisites": [],
+   "description": "Range and mean deviation about the mean and median for ungrouped and grouped data.",
+   "keywords": [
+    "dispersion",
+    "mean deviation",
+    "range",
+    "median"
+   ]
+  },
+  {
+   "id": "variance_sd",
+   "name": "Variance & Standard Deviation",
+   "chapter": 13,
+   "prerequisites": [
+    "mean_deviation"
+   ],
+   "description": "Variance and standard deviation of ungrouped and grouped data; comparing variability.",
+   "keywords": [
+    "variance",
+    "standard deviation",
+    "coefficient of variation"
+   ]
+  },
+  {
+   "id": "sample_space_events",
+   "name": "Events & Sample Spaces",
+   "chapter": 14,
+   "prerequisites": [
+    "set_operations"
+   ],
+   "description": "Random experiments, outcomes, sample space, types of events and algebra of events.",
+   "keywords": [
+    "sample space",
+    "event",
+    "outcome",
+    "random experiment",
+    "mutually exclusive",
+    "exhaustive"
+   ]
+  },
+  {
+   "id": "probability_axioms",
+   "name": "Axiomatic Probability",
+   "chapter": 14,
+   "prerequisites": [
+    "sample_space_events",
+    "combinations"
+   ],
+   "description": "Axiomatic approach to probability; probability of equally likely outcomes, 'not', 'or' and 'and' events.",
+   "keywords": [
+    "probability",
+    "axiom",
+    "equally likely",
+    "p(a"
+   ]
+  }
+ ]
+}

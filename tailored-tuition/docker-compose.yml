@@ -1,0 +1,14 @@
+services:
+  backend:
+    build: { context: ., dockerfile: backend/Dockerfile }
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CORS_ORIGINS: '["http://localhost:3000"]'
+    volumes: [tuition-data:/app/backend/data]
+    ports: ["8000:8000"]
+  frontend:
+    build: { context: frontend, args: { BACKEND_URL: http://backend:8000 } }
+    depends_on: [backend]
+    ports: ["3000:3000"]
+volumes:
+  tuition-data:

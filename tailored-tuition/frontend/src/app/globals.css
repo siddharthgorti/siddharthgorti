@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+/* Design tokens. Dark values are redefined under prefers-color-scheme. */
+:root {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --surface-2: #efede6;
+  --fg: #1d1f24;
+  --muted: #5b6070;
+  --border: #dcd9cf;
+  --accent: #2f6f62;
+  --accent-fg: #ffffff;
+  --accent-soft: #dcefe9;
+  --warn-soft: #fbf0d9;
+  --warn-fg: #6b4a07;
+  --danger: #a63d32;
+  --ok: #2f7a45;
+  --status-mastered: #2f7a45;
+  --status-learning: #2f6f62;
+  --status-started: #b07d1f;
+  --status-none: #9aa0ad;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --surface: #1c1f25;
+    --surface-2: #252932;
+    --fg: #e8e9ec;
+    --muted: #a3a8b5;
+    --border: #343946;
+    --accent: #6cc3ad;
+    --accent-fg: #0d1f1a;
+    --accent-soft: #1f3a33;
+    --warn-soft: #3a2f17;
+    --warn-fg: #f2d494;
+    --danger: #f08a7e;
+    --ok: #7fd394;
+    --status-mastered: #7fd394;
+    --status-learning: #6cc3ad;
+    --status-started: #e3b55a;
+    --status-none: #6b7180;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-fg: var(--warn-fg);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Long equations scroll inside their own box instead of widening the page. */
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 0;
+}
+
+.prose-tutor p { margin: 0.4em 0; }
+.prose-tutor ul { list-style: disc; padding-left: 1.25rem; margin: 0.4em 0; }
+.prose-tutor ol { list-style: decimal; padding-left: 1.25rem; margin: 0.4em 0; }
+.prose-tutor code { background: var(--surface-2); padding: 0 0.25em; border-radius: 4px; font-size: 0.9em; }
+.prose-tutor pre { background: var(--surface-2); padding: 0.75rem; border-radius: 8px; overflow-x: auto; }
+.prose-tutor strong { font-weight: 600; }
+.prose-tutor h1, .prose-tutor h2, .prose-tutor h3 { font-weight: 600; margin: 0.6em 0 0.3em; }
+.prose-tutor table { display: block; overflow-x: auto; border-collapse: collapse; }
+.prose-tutor td, .prose-tutor th { border: 1px solid var(--border); padding: 0.25rem 0.5rem; }
+
+@keyframes tt-bounce {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+.tt-dot { animation: tt-bounce 1.2s infinite ease-in-out; }
+.tt-dot:nth-child(2) { animation-delay: 0.15s; }
+.tt-dot:nth-child(3) { animation-delay: 0.3s; }
+@media (prefers-reduced-motion: reduce) {
+  .tt-dot { animation: none; }
+}
