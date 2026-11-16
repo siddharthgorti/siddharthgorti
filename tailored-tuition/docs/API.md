@@ -120,7 +120,7 @@ interface SyllabusDocument { id: string; filename: string; sections: number; chu
 
 | Method | Path | Body | Returns |
 |---|---|---|---|
-| GET | `/api/health` | – | `{status: "ok", llm_mode: "anthropic" \| "offline", model: string}` |
+| GET | `/api/health` | – | `{status: "ok", llm_mode: "anthropic" \| "offline", model: string, quiz_model: string}` (`model` = chat model) |
 | POST | `/api/students` | `{name: string, guardian_consent: boolean}` | `Student` (400 if consent is false) |
 | GET | `/api/students/{id}` | – | `Student` |
 | GET | `/api/onboarding/questions` | – | `OnboardingQuestion[]` |

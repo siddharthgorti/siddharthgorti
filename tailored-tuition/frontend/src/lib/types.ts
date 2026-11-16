@@ -156,4 +156,5 @@ export interface Health {
   status: "ok";
   llm_mode: "anthropic" | "offline";
   model: string;
+  quiz_model: string;
 }

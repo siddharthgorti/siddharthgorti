@@ -15,9 +15,13 @@ class Settings(BaseSettings):
     # responses) so the whole stack can be developed and tested without spend.
     anthropic_api_key: str | None = None
     llm_mode: str = "auto"  # "auto" | "anthropic" | "offline"
-    default_model: str = "claude-sonnet-5-5"
-    chat_effort: str = "low"  # tutoring turns: latency-sensitive
-    quiz_effort: str = "medium"  # answer keys must be correct: think more
+    # Chat runs on every student message, so it favours speed; quiz generation
+    # is rarer and a wrong answer key is the costliest error, so it favours
+    # accuracy. See README "Choosing models".
+    chat_model: str = "claude-sonnet-5-5"
+    chat_effort: str = "low"
+    quiz_model: str = "claude-opus-5-5"
+    quiz_effort: str = "medium"
     enable_refusal_fallbacks: bool = True
 
     database_url: str = f"sqlite:///{BACKEND_DIR / 'data' / 'tuition.db'}"

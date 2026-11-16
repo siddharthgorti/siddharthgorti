@@ -8,7 +8,12 @@ SAMPLE = Path(__file__).resolve().parents[2] / "data" / "sample_syllabi" / "clas
 
 
 def test_health(client):
-    assert client.get("/api/health").json() == {"status": "ok", "llm_mode": "offline", "model": "offline-stub"}
+    assert client.get("/api/health").json() == {
+        "status": "ok",
+        "llm_mode": "offline",
+        "model": "offline-stub",
+        "quiz_model": "offline-stub",
+    }
 
 
 def test_student_requires_guardian_consent(client):

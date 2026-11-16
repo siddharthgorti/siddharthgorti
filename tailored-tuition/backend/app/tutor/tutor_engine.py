@@ -233,31 +233,20 @@ class TutorEngine:
         history: list[Message],
         content: str,
     ) -> TutorTurn:
-        persona = get_persona(session.persona)
-        stable = STABLE_TEMPLATE.format(
+        system = build_system(
+            settings=self.settings,
+            student_name=student.name,
             grade=student.grade,
             board=student.board,
-            subject=self.settings.subject,
-            student_name=student.name,
-            guardrails=guardrails.GUARDRAIL_PROMPT,
-            persona=persona.prompt,
-        )
-        injection = adaptation_for(affect).prompt_injection
-        dynamic = DYNAMIC_TEMPLATE.format(
-            topic=concept.name,
+            persona_id=session.persona,
+            concept=concept,
+            designer=designer,
             mastery=mastery,
-            phase=designer.state.phase,
-            phase_instruction=designer.phase_instruction(mastery),
-            affect_block=f"STUDENT STATE: {affect}. {injection}\n" if injection else "",
+            affect=affect,
             rag_context=format_context(concept, hits),
         )
-        system = [
-            {"type": "text", "text": stable, "cache_control": {"type": "ephemeral"}},
-            {"type": "text", "text": dynamic},
-        ]
         messages = self._history_messages(concept, history) + [{"role": "user", "content": content}]
-        effort = self.settings.chat_effort
-        return self.llm.structured(system, messages, TutorTurn, effort)
+        return self.llm.structured(system, messages, TutorTurn, self.settings.chat_effort, self.settings.chat_model)
 
     def _history_messages(self, concept: Concept, history: list[Message]) -> list[dict]:
         if not history:
@@ -269,6 +258,44 @@ class TutorEngine:
         return [kickoff] + [
             {"role": "assistant" if m.role == "tutor" else "user", "content": m.content} for m in recent
         ]
+
+
+def build_system(
+    *,
+    settings: Settings,
+    student_name: str,
+    grade: int,
+    board: str,
+    persona_id: str,
+    concept: Concept,
+    designer: SessionDesigner,
+    mastery: float,
+    affect: str,
+    rag_context: str,
+) -> list[dict]:
+    """System prompt blocks: a cacheable stable block, then per-turn state.
+    Module-level so the assessment eval (evals/) uses the exact production prompt."""
+    stable = STABLE_TEMPLATE.format(
+        grade=grade,
+        board=board,
+        subject=settings.subject,
+        student_name=student_name,
+        guardrails=guardrails.GUARDRAIL_PROMPT,
+        persona=get_persona(persona_id).prompt,
+    )
+    injection = adaptation_for(affect).prompt_injection
+    dynamic = DYNAMIC_TEMPLATE.format(
+        topic=concept.name,
+        mastery=mastery,
+        phase=designer.state.phase,
+        phase_instruction=designer.phase_instruction(mastery),
+        affect_block=f"STUDENT STATE: {affect}. {injection}\n" if injection else "",
+        rag_context=rag_context,
+    )
+    return [
+        {"type": "text", "text": stable, "cache_control": {"type": "ephemeral"}},
+        {"type": "text", "text": dynamic},
+    ]
 
 
 def _sources(hits: list[Retrieved]) -> list[dict]:

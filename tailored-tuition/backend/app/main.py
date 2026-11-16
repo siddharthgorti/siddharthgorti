@@ -35,7 +35,8 @@ async def lifespan(_: FastAPI):
             if n:
                 log.info("Seeded %d sample syllabus document(s)", n)
     llm = get_llm()
-    log.info("LLM mode: %s (%s)", llm.mode, llm.model)
+    settings = get_settings()
+    log.info("LLM mode: %s (chat: %s, quiz: %s)", llm.mode, settings.chat_model, settings.quiz_model)
     yield
 
 
@@ -54,7 +55,9 @@ def create_app() -> FastAPI:
     @app.get("/api/health", response_model=HealthOut, tags=["meta"])
     def health():
         llm = get_llm()
-        return {"status": "ok", "llm_mode": llm.mode, "model": llm.model}
+        if llm.mode == "offline":
+            return {"status": "ok", "llm_mode": "offline", "model": llm.model, "quiz_model": llm.model}
+        return {"status": "ok", "llm_mode": llm.mode, "model": settings.chat_model, "quiz_model": settings.quiz_model}
 
     return app
 

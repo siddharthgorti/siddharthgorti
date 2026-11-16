@@ -48,13 +48,56 @@ still exercise every feature (phases, mastery, quizzes, progress map). That make
 and demo without spending anything. **With a key** it uses `claude-sonnet-5-5`, at low effort for
 chat (fast replies) and medium effort for quiz generation (correct answer keys matter more than speed).
 
+## Getting and adding an Anthropic API key
+
+1. Go to the **Claude Console** at https://console.anthropic.com and sign up or log in. A Claude.ai
+   Pro/Max subscription does **not** include API usage; the API is billed separately, pay-as-you-go.
+2. Add credits under **Billing** (a few dollars is plenty for testing), and set a monthly
+   **spend limit** so a bug can't run up a bill.
+3. Under **API Keys**, choose **Create Key**, name it (e.g. `tailored-tuition-dev`) and copy it. It
+   starts with `sk-ant-` and is shown **only once**.
+4. Put it in `backend/.env` (copied from `.env.example`):
+   ```bash
+   ANTHROPIC_API_KEY=sk-ant-...
+   ```
+5. Restart the backend. `http://localhost:8000/api/health` should now report `"llm_mode": "anthropic"`.
+
+Keep the key secret: `.env` is git-ignored, so never commit it, paste it into chats or put it in
+frontend code. If it leaks, delete it in the Console and create a new one. When you deploy, set
+`ANTHROPIC_API_KEY` as an environment variable in your host's dashboard (Render, Railway, ...); for
+Docker, run `ANTHROPIC_API_KEY=sk-ant-... docker compose up --build`.
+
+## Choosing models
+
+| Setting | Default | Why |
+|---|---|---|
+| `CHAT_MODEL` / `CHAT_EFFORT` | `claude-sonnet-5-5` / `low` | Runs on every student message, so speed matters. Roughly $0.02 per turn (estimate). |
+| `QUIZ_MODEL` / `QUIZ_EFFORT` | `claude-opus-5-5` / `medium` | Runs rarely, and a wrong answer key is the most damaging error. |
+
+These defaults are reasoned estimates, not measurements. To decide on evidence, run the
+answer-checking eval. It replays 22 labelled student answers (right, wrong, unusual-but-correct
+forms, sign slips, help requests) through the real tutor prompt and reports, per model, how often
+each one judges correctness accurately:
+
+```bash
+cd backend
+python -m evals.run_assessment_eval --dry-run    # shows the plan and estimated cost (~$1.20), spends nothing
+python -m evals.run_assessment_eval              # Sonnet 5.5 vs Opus 5.5; asks before spending
+python -m evals.run_assessment_eval --models claude-haiku-5-5 claude-sonnet-5-5 --repeats 3
+```
+
+Watch the **false-wrong** column most: correct answers marked wrong lower a student's mastery and
+can trigger "frustration" handling for no reason. If Sonnet's false-wrong count matches Opus's, keep
+Sonnet for chat. With 22 cases a difference of one or two is noise; use `--repeats 3`, or add cases
+to `evals/assessment_cases.json`, before switching on a small gap.
+
 Docker: `ANTHROPIC_API_KEY=... docker compose up --build` (the compose file and Dockerfiles are
 included but haven't been built in CI yet).
 
 ## Tests and checks
 
 ```bash
-cd backend && pytest && ruff check app tests          # 99 tests
+cd backend && pytest && ruff check app tests evals    # 105 tests
 cd frontend && npm run lint && npm run typecheck && npm run build
 ```
 

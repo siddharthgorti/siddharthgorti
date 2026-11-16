@@ -82,7 +82,13 @@ class QuizGenerator:
         system = [
             {"type": "text", "text": "You write accurate, syllabus-aligned maths assessment items for school students."}
         ]
-        draft = self.llm.structured(system, [{"role": "user", "content": prompt}], QuizDraft, self.settings.quiz_effort)
+        draft = self.llm.structured(
+            system,
+            [{"role": "user", "content": prompt}],
+            QuizDraft,
+            self.settings.quiz_effort,
+            self.settings.quiz_model,
+        )
         items = [q for q in draft.questions if validate_item(q)][:n]
         if not items:
             raise LLMError("Couldn't generate valid questions. Please try again.")

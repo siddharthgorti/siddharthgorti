@@ -1,0 +1,203 @@
+{
+ "description": "Labelled student messages for checking the tutor's per-turn assessment (kind + correctness). Answer keys hand-checked.",
+ "cases": [
+  {
+   "id": "roster_correct",
+   "concept_id": "sets_basics",
+   "tutor_problem": "Write $A = \\{x : x \\in \\mathbb{N},\\ x < 5\\}$ in roster form.",
+   "student_answer": "{1,2,3,4}",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "Natural numbers below 5."
+  },
+  {
+   "id": "roster_includes_zero",
+   "concept_id": "sets_basics",
+   "tutor_problem": "Write $A = \\{x : x \\in \\mathbb{N},\\ x < 5\\}$ in roster form.",
+   "student_answer": "{0,1,2,3,4}",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "0 is not a natural number in the CBSE convention."
+  },
+  {
+   "id": "subsets_count_correct",
+   "concept_id": "sets_basics",
+   "tutor_problem": "How many subsets does $\\{a, b, c\\}$ have?",
+   "student_answer": "8",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "2^3 = 8."
+  },
+  {
+   "id": "subsets_count_wrong",
+   "concept_id": "sets_basics",
+   "tutor_problem": "How many subsets does $\\{a, b, c\\}$ have?",
+   "student_answer": "6",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "Forgot the empty set and the set itself."
+  },
+  {
+   "id": "power_set_with_working",
+   "concept_id": "sets_basics",
+   "tutor_problem": "If $n(A) = 4$, find $n(P(A))$.",
+   "student_answer": "2^4 = 16",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "Correct, written with working."
+  },
+  {
+   "id": "union_different_order",
+   "concept_id": "set_operations",
+   "tutor_problem": "Let $U=\\{1,2,3,4,5,6\\}$, $A=\\{1,2,3\\}$, $B=\\{2,4\\}$. Find $A \\cup B$.",
+   "student_answer": "{4,3,2,1}",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "Order of elements doesn't matter."
+  },
+  {
+   "id": "intersection_gave_union",
+   "concept_id": "set_operations",
+   "tutor_problem": "Let $U=\\{1,2,3,4,5,6\\}$, $A=\\{1,2,3\\}$, $B=\\{2,4\\}$. Find $A \\cap B$.",
+   "student_answer": "{1,2,3,4}",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "Gave the union instead of {2}."
+  },
+  {
+   "id": "complement_correct",
+   "concept_id": "set_operations",
+   "tutor_problem": "Let $U=\\{1,2,3,4,5,6\\}$ and $A=\\{1,2,3\\}$. Find $A'$.",
+   "student_answer": "4, 5 and 6",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "Correct, written informally."
+  },
+  {
+   "id": "venn_neither_correct",
+   "concept_id": "venn_diagrams",
+   "tutor_problem": "In a class of 40, 25 play cricket, 18 play football and 8 play both. How many play neither?",
+   "student_answer": "5",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "40 - (25 + 18 - 8) = 5."
+  },
+  {
+   "id": "venn_forgot_overlap",
+   "concept_id": "venn_diagrams",
+   "tutor_problem": "In a class of 40, 25 play cricket, 18 play football and 8 play both. How many play neither?",
+   "student_answer": "25+18 = 43 which is more than 40, so nobody plays neither. 0",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "Didn't subtract the 8 counted twice."
+  },
+  {
+   "id": "cartesian_size",
+   "concept_id": "cartesian_product",
+   "tutor_problem": "If $n(A)=3$ and $n(B)=2$, find $n(A \\times B)$.",
+   "student_answer": "6",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "3 x 2."
+  },
+  {
+   "id": "relations_count",
+   "concept_id": "relations",
+   "tutor_problem": "How many relations are there from a set with 2 elements to a set with 3 elements?",
+   "student_answer": "2^6 = 64",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "2^(2*3)."
+  },
+  {
+   "id": "complex_roots_correct",
+   "concept_id": "quadratic_complex_roots",
+   "tutor_problem": "Solve $x^2 + 4 = 0$.",
+   "student_answer": "x = ±2i",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "x^2 = -4."
+  },
+  {
+   "id": "complex_roots_real",
+   "concept_id": "quadratic_complex_roots",
+   "tutor_problem": "Solve $x^2 + 4 = 0$.",
+   "student_answer": "x = ±2",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "(±2)^2 = 4, not -4."
+  },
+  {
+   "id": "complex_product_correct",
+   "concept_id": "complex_algebra",
+   "tutor_problem": "Compute $(2+3i)(1-i)$.",
+   "student_answer": "2 - 2i + 3i - 3i^2 = 2 + i + 3 = 5 + i",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "Uses i^2 = -1."
+  },
+  {
+   "id": "complex_product_sign_slip",
+   "concept_id": "complex_algebra",
+   "tutor_problem": "Compute $(2+3i)(1-i)$.",
+   "student_answer": "2 - 2i + 3i - 3 = -1 + i",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "Treated -3i^2 as -3 (sign slip)."
+  },
+  {
+   "id": "ball_arrangements",
+   "concept_id": "permutations",
+   "tutor_problem": "In how many ways can the letters of the word BALL be arranged?",
+   "student_answer": "12",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "4!/2! = 12."
+  },
+  {
+   "id": "ncr_with_working",
+   "concept_id": "combinations",
+   "tutor_problem": "Find $^{10}C_3$.",
+   "student_answer": "10!/(3!7!) = 720/6 = 120",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "Correct with working."
+  },
+  {
+   "id": "ap_tenth_term",
+   "concept_id": "arithmetic_progressions",
+   "tutor_problem": "Find the 10th term of the AP $2, 5, 8, \\dots$",
+   "student_answer": "29",
+   "expected_kind": "answer_attempt",
+   "expected_correct": true,
+   "why": "2 + 9 x 3."
+  },
+  {
+   "id": "limit_zero_over_zero",
+   "concept_id": "limits",
+   "tutor_problem": "Evaluate $\\lim_{x \\to 2} \\dfrac{x^2 - 4}{x - 2}$.",
+   "student_answer": "Putting x=2 gives 0/0, so the limit does not exist.",
+   "expected_kind": "answer_attempt",
+   "expected_correct": false,
+   "why": "0/0 is indeterminate; the limit is 4."
+  },
+  {
+   "id": "help_request",
+   "concept_id": "set_operations",
+   "tutor_problem": "Let $A=\\{1,2,3\\}$ and $B=\\{2,4\\}$. Find $A - B$.",
+   "student_answer": "I don't even know where to start with this one",
+   "expected_kind": "help_request",
+   "expected_correct": null,
+   "why": "Not an attempt."
+  },
+  {
+   "id": "conceptual_question",
+   "concept_id": "sets_basics",
+   "tutor_problem": "Is $\\phi$ a subset of $\\{1, 2\\}$?",
+   "student_answer": "wait, can the empty set be a subset of every set? why?",
+   "expected_kind": "question",
+   "expected_correct": null,
+   "why": "A question, not an answer."
+  }
+ ]
+}

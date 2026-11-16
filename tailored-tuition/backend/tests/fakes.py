@@ -11,8 +11,8 @@ class ScriptedLLM:
         self.assessments = list(assessments or [])
         self.calls: list[dict] = []
 
-    def structured(self, system, messages, schema, effort):
-        self.calls.append({"system": system, "messages": messages, "schema": schema, "effort": effort})
+    def structured(self, system, messages, schema, effort, model=None):
+        self.calls.append({"system": system, "messages": messages, "schema": schema, "effort": effort, "model": model})
         if messages[-1]["content"].startswith("[SESSION START]") or not self.assessments:
             a = TurnAssessment(kind="other", correct=None, error_tag=None, problem_completed=False)
         else:

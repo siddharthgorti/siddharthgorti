@@ -94,10 +94,10 @@ def test_llm_failure_returns_503_and_persists_nothing(client, use_llm, onboarded
     from app.llm.client import LLMError
 
     class Failing(ScriptedLLM):
-        def structured(self, system, messages, schema, effort):
+        def structured(self, system, messages, schema, effort, model=None):
             if not messages[-1]["content"].startswith("[SESSION START]"):
                 raise LLMError("down")
-            return super().structured(system, messages, schema, effort)
+            return super().structured(system, messages, schema, effort, model)
 
     use_llm(Failing())
     s = start(client, onboarded_student["id"])

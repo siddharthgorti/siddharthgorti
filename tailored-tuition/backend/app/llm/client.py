@@ -32,7 +32,9 @@ class LLMClient(Protocol):
     mode: str
     model: str
 
-    def structured(self, system: SystemBlocks, messages: Messages, schema: type[T], effort: str) -> T: ...
+    def structured(
+        self, system: SystemBlocks, messages: Messages, schema: type[T], effort: str, model: str | None = None
+    ) -> T: ...
 
 
 class AnthropicLLM:
@@ -43,10 +45,13 @@ class AnthropicLLM:
 
         self._anthropic = anthropic
         self._client = anthropic.Anthropic(api_key=settings.anthropic_api_key, max_retries=3, timeout=120.0)
-        self.model = settings.default_model
+        self.model = settings.chat_model  # default when a call doesn't name one
         self._fallbacks = settings.enable_refusal_fallbacks
+        self.last_usage = None  # token usage of the most recent call (read by evals)
 
-    def structured(self, system: SystemBlocks, messages: Messages, schema: type[T], effort: str) -> T:
+    def structured(
+        self, system: SystemBlocks, messages: Messages, schema: type[T], effort: str, model: str | None = None
+    ) -> T:
         kwargs: dict = {}
         if self._fallbacks:
             # On a safety-classifier decline the API re-runs the request on a
@@ -54,7 +59,7 @@ class AnthropicLLM:
             kwargs = {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"}
         try:
             response = self._client.beta.messages.parse(
-                model=self.model,
+                model=model or self.model,
                 max_tokens=16000,
                 system=system,
                 messages=messages,
@@ -70,6 +75,7 @@ class AnthropicLLM:
         except self._anthropic.APIConnectionError as exc:
             raise LLMError("Could not reach the tutor service. Check your connection.") from exc
 
+        self.last_usage = response.usage
         if response.stop_reason == "refusal":
             raise LLMError("The tutor couldn't respond to that message. Try rephrasing it.")
         if response.stop_reason == "max_tokens" or response.parsed_output is None:
@@ -89,7 +95,9 @@ class OfflineLLM:
 
     _HELP = re.compile(r"\b(help|stuck|don'?t (get|understand)|confused|no idea|hint)\b", re.I)
 
-    def structured(self, system: SystemBlocks, messages: Messages, schema: type[T], effort: str) -> T:
+    def structured(
+        self, system: SystemBlocks, messages: Messages, schema: type[T], effort: str, model: str | None = None
+    ) -> T:
         last = messages[-1]["content"] if messages else ""
         if schema is TutorTurn:
             return self._tutor_turn(system, last)  # type: ignore[return-value]

@@ -167,4 +167,5 @@ class SyllabusDocumentOut(BaseModel):
 class HealthOut(BaseModel):
     status: Literal["ok"]
     llm_mode: Literal["anthropic", "offline"]
-    model: str
+    model: str  # chat model
+    quiz_model: str
