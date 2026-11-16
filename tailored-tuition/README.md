@@ -25,6 +25,37 @@ in [`docs/SPEC_REVIEW.md`](docs/SPEC_REVIEW.md).
 site works on every phone and laptop with no app-store review. If you later want an installable app,
 the same frontend can become a PWA, or be wrapped with Capacitor, without a rewrite.
 
+## Quick demo on your laptop (one command)
+
+You need **Git**, **Python 3.12+** and **Node.js 22 LTS** installed. Then:
+
+```bash
+git clone https://github.com/siddharthgorti/siddharthgorti.git
+cd siddharthgorti
+git checkout claude/markdown-review-tool-dev-am64cs
+cd tailored-tuition
+./demo.sh                                                   # macOS / Linux
+powershell -ExecutionPolicy Bypass -File .\demo.ps1          # Windows
+```
+
+The first run takes a few minutes (installing and building); later runs start in seconds. The
+script prints two addresses:
+
+- **On this computer:** http://localhost:3000
+- **On a phone (same Wi-Fi):** `http://<your-laptop-ip>:3000`, so people can try it on their own
+  phones. If your OS asks whether to allow incoming connections, say yes. Public or guest Wi-Fi often
+  blocks device-to-device traffic; a phone hotspot works.
+
+**Showing it to several people:** tap your name (top right) → *New student*, so each person gets
+their own onboarding and progress. Earlier students' progress stays saved.
+
+**Real tutoring vs offline mode:** without an API key every reply is a canned, clearly labelled
+"offline demo" message, which is fine for showing the screens but not the tutoring. For a real demo
+add a key (see below). A full 30-message session costs roughly $0.60.
+
+Stop the demo with Ctrl+C. All data lives in `backend/data/` on your laptop; delete that folder to
+start completely fresh.
+
 ## Run it locally
 
 Prerequisites: Python 3.12+, Node 22+.

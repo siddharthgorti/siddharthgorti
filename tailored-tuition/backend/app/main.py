@@ -35,8 +35,11 @@ async def lifespan(_: FastAPI):
             if n:
                 log.info("Seeded %d sample syllabus document(s)", n)
     llm = get_llm()
-    settings = get_settings()
-    log.info("LLM mode: %s (chat: %s, quiz: %s)", llm.mode, settings.chat_model, settings.quiz_model)
+    if llm.mode == "offline":
+        log.info("LLM mode: offline (canned demo replies; add ANTHROPIC_API_KEY for real tutoring)")
+    else:
+        settings = get_settings()
+        log.info("LLM mode: %s (chat: %s, quiz: %s)", llm.mode, settings.chat_model, settings.quiz_model)
     yield
 
 
