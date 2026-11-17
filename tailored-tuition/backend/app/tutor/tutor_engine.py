@@ -27,7 +27,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.domain.knowledge_graph import Concept, KnowledgeGraph
-from app.domain.rag_pipeline import Retrieved, Retriever, format_context
+from app.domain.rag_pipeline import SYLLABUS_NOTE, Retrieved, Retriever, format_context
 from app.engagement import guardrails
 from app.engagement.affect_detector import AffectDetector, AffectSignals, is_help_request
 from app.engagement.response_router import adaptation_for
@@ -291,6 +291,7 @@ def build_system(
         phase_instruction=designer.phase_instruction(mastery),
         affect_block=f"STUDENT STATE: {affect}. {injection}\n" if injection else "",
         rag_context=rag_context,
+        syllabus_note=SYLLABUS_NOTE,
     )
     return [
         {"type": "text", "text": stable, "cache_control": {"type": "ephemeral"}},

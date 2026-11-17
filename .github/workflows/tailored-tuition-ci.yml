@@ -1,5 +1,7 @@
 name: tailored-tuition CI
 on:
+  schedule:
+    - cron: "17 6 * * 1"  # weekly: new CVEs appear in unchanged code too
   push:
     paths: ["tailored-tuition/**", ".github/workflows/tailored-tuition-ci.yml"]
   pull_request:
@@ -15,6 +17,8 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - run: ruff check app tests evals && ruff format --check app tests evals
       - run: pytest
+      - name: Known-vulnerability check (fails on any CVE in pinned packages)
+        run: pip-audit -r requirements.txt --progress-spinner off
   frontend:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: tailored-tuition/frontend } }
@@ -24,3 +28,5 @@ jobs:
         with: { node-version: "22", cache: npm, cache-dependency-path: tailored-tuition/frontend/package-lock.json }
       - run: npm ci
       - run: npm run lint && npm run typecheck && npm run build
+      - name: Known-vulnerability check
+        run: npm audit --audit-level=low

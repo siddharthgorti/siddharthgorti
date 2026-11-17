@@ -104,3 +104,10 @@ def test_llm_failure_returns_503_and_persists_nothing(client, use_llm, onboarded
     r = client.post(f"/api/sessions/{s['session_id']}/messages", json={"content": "x", "latency_seconds": 1})
     assert r.status_code == 503 and r.json()["detail"] == "down"
     assert len(client.get(f"/api/sessions/{s['session_id']}").json()["messages"]) == 1
+
+
+def test_prompt_marks_syllabus_as_untrusted(client, use_llm, onboarded_student):
+    llm = use_llm(ScriptedLLM())
+    start(client, onboarded_student["id"])
+    text = system_text(llm.calls[0])
+    assert "<syllabus_material>" in text and "ignore it" in text

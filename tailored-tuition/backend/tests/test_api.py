@@ -112,3 +112,22 @@ def test_open_session_history_reports_current_mastery(client, onboarded_student)
     client.post(f"/api/sessions/{s['session_id']}/messages", json={"content": "5", "latency_seconds": 3})
     hist = client.get(f"/api/students/{sid}/sessions").json()
     assert hist[0]["ended_at"] is None and hist[0]["mastery_end"] > hist[0]["mastery_start"]
+
+
+def test_oversized_upload_rejected_before_reading(client):
+    from app.config import get_settings
+
+    too_big = (get_settings().max_upload_mb + 2) * 1024 * 1024
+    r = client.post(
+        "/api/syllabus/upload",
+        content=b"x",
+        headers={"Content-Type": "multipart/form-data; boundary=b", "Content-Length": str(too_big)},
+    )
+    assert r.status_code == 413
+
+
+def test_oversized_json_body_rejected(client):
+    r = client.post("/api/students", content=b"{" + b" " * 70_000 + b"}", headers={"Content-Type": "application/json"})
+    assert r.status_code == 413
+    # Normal requests are unaffected.
+    assert client.post("/api/students", json={"name": "Ok", "guardian_consent": True}).status_code == 201

@@ -7,8 +7,9 @@ import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api import routes_profile, routes_progress, routes_quiz, routes_syllabus, routes_tutor
 from app.api.schemas import HealthOut
@@ -54,6 +55,24 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    # Reject oversized bodies BEFORE they are read: multipart parsing would
+    # otherwise spool the whole upload to disk before the route's own size check.
+    max_body = (settings.max_upload_mb + 1) * 1024 * 1024
+    json_max_body = 64 * 1024
+
+    @app.middleware("http")
+    async def limit_body_size(request: Request, call_next):
+        if request.method in ("POST", "PUT", "PATCH"):
+            is_upload = request.url.path == "/api/syllabus/upload"
+            limit = max_body if is_upload else json_max_body
+            length = request.headers.get("content-length")
+            if length is None:
+                if is_upload:  # chunked uploads have no declared size to check
+                    return JSONResponse({"detail": "Upload size must be declared (Content-Length)."}, 411)
+            elif not length.isdigit() or int(length) > limit:
+                return JSONResponse({"detail": f"Request too large (limit {limit // 1024} KB)."}, 413)
+        return await call_next(request)
+
     for r in (routes_profile, routes_syllabus, routes_tutor, routes_quiz, routes_progress):
         app.include_router(r.router)
 

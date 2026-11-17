@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session
 
 from app.config import Settings
 from app.domain.knowledge_graph import Concept
-from app.domain.rag_pipeline import Retriever, format_context
+from app.domain.rag_pipeline import SYLLABUS_NOTE, Retriever, format_context
 from app.llm.client import LLMClient, LLMError
 from app.llm.schemas import QuizDraft, QuizItem
 from app.quiz.answer_evaluator import parse_number
@@ -53,7 +53,7 @@ Rules:
 - Solve each question yourself before writing the answer key, and double-check it.
 - Use LaTeX for maths ($...$). Keep explanations to 1–3 short steps.
 
-SYLLABUS CONTENT:
+SYLLABUS CONTENT ({SYLLABUS_NOTE}):
 {context}"""
 
 

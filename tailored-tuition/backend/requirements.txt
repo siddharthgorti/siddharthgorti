@@ -1,8 +1,10 @@
-fastapi==0.121.1
-uvicorn[standard]==0.38.0
-pydantic==2.12.4
-pydantic-settings==2.12.0
-sqlalchemy==2.0.44
-python-multipart==0.0.20
-pypdf==6.2.0
-anthropic==2.8.0
+fastapi==0.163.1
+# Pinned explicitly: FastAPI allows starlette>=0.46, so pip keeps an old, vulnerable copy otherwise.
+starlette==1.10.0
+uvicorn[standard]==0.54.0
+pydantic==2.14.3
+pydantic-settings==2.16.3
+sqlalchemy==2.1.9
+python-multipart==0.0.34
+pypdf==7.1.0
+anthropic==2.9.0

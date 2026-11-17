@@ -46,6 +46,6 @@ STUDENT'S MASTERY OF THIS TOPIC: {mastery:.2f} (0 = new, 1 = mastered)
 SESSION PHASE: {phase}
 PHASE GUIDANCE: {phase_instruction}
 {affect_block}
-RELEVANT SYLLABUS CONTENT:
+RELEVANT SYLLABUS CONTENT ({syllabus_note}):
 {rag_context}
 """

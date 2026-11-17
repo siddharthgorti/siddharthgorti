@@ -1,0 +1,17 @@
+# Weekly pull requests that bump outdated or vulnerable dependencies.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /tailored-tuition/backend
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: /tailored-tuition/frontend
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 5
+    groups:
+      dev-tooling:
+        dependency-type: development
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: monthly }
