@@ -59,9 +59,14 @@ script prints two addresses:
 **Showing it to several people:** tap your name (top right) → *New student*, so each person gets
 their own onboarding and progress. Earlier students' progress stays saved.
 
-**Real tutoring vs offline mode:** without an API key every reply is a canned, clearly labelled
-"offline demo" message, which is fine for showing the screens but not the tutoring. For a real demo
-add a key (see below). A full 30-message session costs roughly $0.60.
+**Which AI does the tutoring?** The website runs on your laptop, but the tutoring needs an AI model.
+The app uses the first of these it finds, and the start script prints which one (`Tutor AI: ...`):
+
+| Option | Cost | Quality | Setup |
+|---|---|---|---|
+| **Claude** (Anthropic API key) | ~$0.60 per 30-message session | Best: strong at maths and at marking answers | Add a key ([below](#getting-and-adding-an-anthropic-api-key)) |
+| **Local model via Ollama** | Free, works offline | Noticeably weaker at maths; slower without a good GPU | [Below](#free-local-ai-with-ollama) |
+| **Neither** | Free | **No real tutoring**: every reply is a canned "offline demo" message | Nothing |
 
 Stop the demo with Ctrl+C. All data lives in `backend/data/` on your laptop; delete that folder to
 start completely fresh.
@@ -88,6 +93,28 @@ npm run dev
 still exercise every feature (phases, mastery, quizzes, progress map). That makes it safe to develop
 and demo without spending anything. **With a key** it uses `claude-sonnet-5-5`, at low effort for
 chat (fast replies) and medium effort for quiz generation (correct answer keys matter more than speed).
+
+## Free local AI with Ollama
+
+Runs an open AI model on your own laptop: no key, no cost, no internet needed once downloaded.
+
+1. Install Ollama from https://ollama.com (Windows, macOS and Linux) and open it.
+2. Download the model, once (about 4.7 GB):
+   ```bash
+   ollama pull qwen2.5:7b
+   ```
+   On a laptop with 8 GB of RAM, use the smaller `qwen2.5:3b` (about 2 GB, faster, weaker) and set
+   `OLLAMA_MODEL=qwen2.5:3b` in `backend/.env`.
+3. Run the demo script as usual. It finds Ollama automatically and prints
+   `Tutor AI: LOCAL model via Ollama`.
+
+What to expect, honestly: a model small enough for a laptop is much weaker than Claude at multi-step
+maths. It will sometimes mark a correct answer wrong or write a quiz question with a wrong answer key,
+and replies can take 10–60 seconds on a laptop without a dedicated GPU (estimates; depends on your
+hardware). It's good for showing how the app works; use Claude when the quality of the tutoring is
+the point of the demo. To measure the gap on your own laptop, run the answer-checking eval (free for
+local models): `python -m evals.run_assessment_eval --models qwen2.5:7b` from `backend/`, adding
+`claude-sonnet-5-5` to the list once you have a key.
 
 ## Getting and adding an Anthropic API key
 

@@ -14,7 +14,11 @@ class Settings(BaseSettings):
     # LLM. With no API key the app runs in "offline" mode (deterministic stub
     # responses) so the whole stack can be developed and tested without spend.
     anthropic_api_key: str | None = None
-    llm_mode: str = "auto"  # "auto" | "anthropic" | "offline"
+    # "auto": Claude if ANTHROPIC_API_KEY is set, else a local Ollama model if
+    # Ollama is running, else canned offline demo replies.
+    llm_mode: str = "auto"  # "auto" | "anthropic" | "ollama" | "offline"
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen2.5:7b"
     # Chat runs on every student message, so it favours speed; quiz generation
     # is rarer and a wrong answer key is the costliest error, so it favours
     # accuracy. See README "Choosing models".
@@ -40,9 +44,13 @@ class Settings(BaseSettings):
 
     @property
     def resolved_llm_mode(self) -> str:
-        if self.llm_mode in ("anthropic", "offline"):
+        if self.llm_mode in ("anthropic", "ollama", "offline"):
             return self.llm_mode
-        return "anthropic" if self.anthropic_api_key else "offline"
+        if self.anthropic_api_key:
+            return "anthropic"
+        from app.llm.ollama import ollama_available
+
+        return "ollama" if ollama_available(self.ollama_url) else "offline"
 
 
 @lru_cache

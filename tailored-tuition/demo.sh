@@ -23,9 +23,17 @@ echo "==> Backend setup"
 if [ ! -d backend/.venv ]; then python3 -m venv backend/.venv; fi
 backend/.venv/bin/pip install -q -r backend/requirements.txt
 if [ ! -f backend/.env ]; then cp backend/.env.example backend/.env; fi
-if ! grep -qE '^ANTHROPIC_API_KEY=.+' backend/.env; then
-  echo "    No API key in backend/.env: running in OFFLINE DEMO MODE (canned replies)."
-  echo "    For real tutoring, add ANTHROPIC_API_KEY=sk-ant-... to backend/.env and re-run."
+# Which AI the tutor will use: Claude (API key), else a local Ollama model, else canned demo replies.
+if grep -qE '^ANTHROPIC_API_KEY=.+' backend/.env; then
+  AI_MODE="Claude (Anthropic API key found)"
+elif curl -s --max-time 2 --noproxy localhost http://localhost:11434/api/tags >/dev/null 2>&1; then
+  AI_MODE="LOCAL model via Ollama (free; weaker at maths and slower than Claude)"
+else
+  AI_MODE="OFFLINE DEMO - canned replies, no real tutoring"
+  echo "    No API key and Ollama isn't running, so the tutor will NOT really tutor."
+  echo "    For real tutoring, either:"
+  echo "      - free: install Ollama (https://ollama.com), run: ollama pull qwen2.5:7b , then re-run this"
+  echo "      - best: add ANTHROPIC_API_KEY=sk-ant-... to backend/.env and re-run this"
 fi
 
 echo "==> Frontend setup (first run takes a few minutes)"
@@ -43,6 +51,7 @@ done
 
 IP=$( (ipconfig getifaddr en0 || ipconfig getifaddr en1 || hostname -I | awk '{print $1}') 2>/dev/null || true)
 echo
+echo "  Tutor AI: $AI_MODE"
 echo "  On this computer:  http://localhost:3000"
 [ -n "$IP" ] && echo "  On a phone (same Wi-Fi):  http://$IP:3000"
 echo "  Stop with Ctrl+C"

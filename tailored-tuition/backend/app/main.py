@@ -36,7 +36,9 @@ async def lifespan(_: FastAPI):
                 log.info("Seeded %d sample syllabus document(s)", n)
     llm = get_llm()
     if llm.mode == "offline":
-        log.info("LLM mode: offline (canned demo replies; add ANTHROPIC_API_KEY for real tutoring)")
+        log.info("LLM mode: offline (canned demo replies; add ANTHROPIC_API_KEY or start Ollama for real tutoring)")
+    elif llm.mode == "ollama":
+        log.info("LLM mode: local model via Ollama (%s)", llm.model)
     else:
         settings = get_settings()
         log.info("LLM mode: %s (chat: %s, quiz: %s)", llm.mode, settings.chat_model, settings.quiz_model)
@@ -58,8 +60,8 @@ def create_app() -> FastAPI:
     @app.get("/api/health", response_model=HealthOut, tags=["meta"])
     def health():
         llm = get_llm()
-        if llm.mode == "offline":
-            return {"status": "ok", "llm_mode": "offline", "model": llm.model, "quiz_model": llm.model}
+        if llm.mode != "anthropic":  # offline stub or a local model: one model serves everything
+            return {"status": "ok", "llm_mode": llm.mode, "model": llm.model, "quiz_model": llm.model}
         return {"status": "ok", "llm_mode": llm.mode, "model": settings.chat_model, "quiz_model": settings.quiz_model}
 
     return app

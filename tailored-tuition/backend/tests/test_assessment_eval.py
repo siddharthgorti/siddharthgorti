@@ -69,3 +69,20 @@ def test_cost_estimate_and_dry_run(capsys):
 def test_refuses_without_key(monkeypatch):
     monkeypatch.setattr(get_settings(), "anthropic_api_key", None)
     assert main(["--yes", "--limit", "1"]) == 2
+
+
+def test_local_model_eval_runs_without_key_or_confirmation(monkeypatch, capsys):
+    from tests.test_ollama import GOOD, FakeOllama
+
+    f = FakeOllama(replies=[__import__("json").dumps(GOOD)])
+    try:
+        monkeypatch.setattr(get_settings(), "anthropic_api_key", None)
+        monkeypatch.setattr(get_settings(), "ollama_url", f.url)
+        monkeypatch.setattr(
+            "evals.run_assessment_eval.RESULTS_DIR", __import__("pathlib").Path(__import__("tempfile").mkdtemp())
+        )
+        assert main(["--models", "qwen2.5:7b", "--limit", "2"]) == 0  # no input() prompt: would raise in pytest
+        assert {r["model"] for r in f.requests} == {"qwen2.5:7b"}
+        assert "qwen2.5:7b" in capsys.readouterr().out
+    finally:
+        f.close()

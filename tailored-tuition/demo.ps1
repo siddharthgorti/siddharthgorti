@@ -57,9 +57,20 @@ if ($LASTEXITCODE -ne 0) { Fail "Installing Python packages failed (see the mess
 
 $EnvFile = Join-Path $Root "backend\.env"
 if (-not (Test-Path $EnvFile)) { Copy-Item (Join-Path $Root "backend\.env.example") $EnvFile }
-if (-not (Select-String -Path $EnvFile -Pattern '^ANTHROPIC_API_KEY=.+' -Quiet)) {
-    Write-Host "    No API key in backend\.env: running in OFFLINE DEMO MODE (canned replies)." -ForegroundColor Yellow
-    Write-Host "    For real tutoring, add ANTHROPIC_API_KEY=sk-ant-... to backend\.env and run this again." -ForegroundColor Yellow
+# Which AI the tutor will use: Claude (API key), else a local Ollama model, else canned demo replies.
+$HasKey = Select-String -Path $EnvFile -Pattern '^ANTHROPIC_API_KEY=.+' -Quiet
+$OllamaUp = $false
+try { Invoke-WebRequest -UseBasicParsing -TimeoutSec 2 "http://localhost:11434/api/tags" | Out-Null; $OllamaUp = $true } catch { }
+if ($HasKey) {
+    $AiMode = "Claude (Anthropic API key found)"
+} elseif ($OllamaUp) {
+    $AiMode = "LOCAL model via Ollama (free; weaker at maths and slower than Claude)"
+} else {
+    $AiMode = "OFFLINE DEMO - canned replies, no real tutoring"
+    Write-Host "    No API key and Ollama isn't running, so the tutor will NOT really tutor." -ForegroundColor Yellow
+    Write-Host "    For real tutoring, either:" -ForegroundColor Yellow
+    Write-Host "      - free: install Ollama (https://ollama.com), run: ollama pull qwen2.5:7b , then re-run this" -ForegroundColor Yellow
+    Write-Host "      - best: add ANTHROPIC_API_KEY=sk-ant-... to backend\.env and re-run this" -ForegroundColor Yellow
 }
 
 # --- Node ----------------------------------------------------------------------
@@ -113,6 +124,7 @@ if ($Route) {
 }
 
 Write-Host ""
+Write-Host "  Tutor AI: $AiMode" -ForegroundColor Cyan
 Write-Host "  On this computer:          http://localhost:3000" -ForegroundColor Green
 if ($Ip) { Write-Host "  On a phone (same Wi-Fi):   http://${Ip}:3000" -ForegroundColor Green }
 Write-Host ""

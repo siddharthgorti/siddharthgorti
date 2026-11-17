@@ -1,7 +1,8 @@
 """LLM access behind a small interface.
 
-`AnthropicLLM` calls Claude with structured outputs. `OfflineLLM` returns
-deterministic stub content so the app (and the test-suite) run with no API key.
+`AnthropicLLM` calls Claude with structured outputs. `OllamaLLM` (llm/ollama.py)
+runs a free local model. `OfflineLLM` returns deterministic stub content so the
+app (and the test-suite) run with neither.
 """
 
 from __future__ import annotations
@@ -183,9 +184,14 @@ def _grab(text: str, pattern: str) -> str | None:
 @lru_cache
 def get_llm() -> LLMClient:
     settings = get_settings()
-    if settings.resolved_llm_mode == "anthropic":
+    mode = settings.resolved_llm_mode
+    if mode == "anthropic":
         if not settings.anthropic_api_key:
             raise RuntimeError("LLM_MODE=anthropic but ANTHROPIC_API_KEY is not set")
         return AnthropicLLM(settings)
-    log.warning("No ANTHROPIC_API_KEY set: running in offline demo mode")
+    if mode == "ollama":
+        from app.llm.ollama import OllamaLLM
+
+        return OllamaLLM(settings)
+    log.warning("No ANTHROPIC_API_KEY set and Ollama not running: offline demo mode (canned replies)")
     return OfflineLLM()

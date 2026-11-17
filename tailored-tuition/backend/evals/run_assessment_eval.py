@@ -11,7 +11,9 @@ Usage (from backend/, with ANTHROPIC_API_KEY set in .env or the environment):
     python -m evals.run_assessment_eval --models claude-haiku-5-5 claude-sonnet-5-5
     python -m evals.run_assessment_eval --repeats 3             # measure consistency too
     python -m evals.run_assessment_eval --dry-run               # show the plan and estimated cost only
+    python -m evals.run_assessment_eval --models qwen2.5:7b claude-sonnet-5-5   # local Ollama model vs Claude
 
+Model names not starting with "claude-" run on a local Ollama model (free).
 It asks for confirmation before spending money (skip with --yes).
 """
 
@@ -139,6 +141,10 @@ def score(results: list[CaseResult]) -> dict:
     }
 
 
+def is_claude(model: str) -> bool:
+    return model.startswith("claude-")
+
+
 def estimate_cost(models: list[str], n_calls_per_model: int) -> float:
     total = 0.0
     for m in models:
@@ -186,18 +192,22 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.dry_run:
         return 0
-    if not settings.anthropic_api_key:
+    if any(is_claude(m) for m in args.models) and not settings.anthropic_api_key:
         print("ANTHROPIC_API_KEY is not set. Add it to backend/.env (see README).", file=sys.stderr)
         return 2
-    if not args.yes and input("Run it? [y/N] ").strip().lower() != "y":
+    if any(is_claude(m) for m in args.models) and not args.yes and input("Run it? [y/N] ").strip().lower() != "y":
         print("Cancelled.")
         return 1
 
     from app.llm.client import AnthropicLLM
+    from app.llm.ollama import OllamaLLM
 
     results: dict[str, list[CaseResult]] = {}
     for model in args.models:
-        llm = AnthropicLLM(settings)
+        if is_claude(model):
+            llm = AnthropicLLM(settings)
+        else:  # any other name is a local Ollama model, e.g. qwen2.5:7b (free, no confirmation needed)
+            llm = OllamaLLM(settings.model_copy(update={"ollama_model": model}))
         print(f"Running {model}...", flush=True)
         # Sequential on purpose: per-call cost is read from llm.last_usage, and
         # sequential calls also give comparable latency numbers.

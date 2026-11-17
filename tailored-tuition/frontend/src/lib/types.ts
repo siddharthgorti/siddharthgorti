@@ -154,7 +154,7 @@ export interface SyllabusDocument {
 
 export interface Health {
   status: "ok";
-  llm_mode: "anthropic" | "offline";
+  llm_mode: "anthropic" | "ollama" | "offline";
   model: string;
   quiz_model: string;
 }
