@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { useMemo, type KeyboardEvent } from "react";
 import type { MasteryMap as MasteryMapData, MasteryStatus } from "@/lib/types";
 
 const NODE_W = 150;
@@ -49,7 +49,8 @@ function truncate(s: string, n: number) {
   return s.length > n ? `${s.slice(0, n - 1)}…` : s;
 }
 
-export default function MasteryMap({ data }: { data: MasteryMapData }) {
+/** `interactive`: nodes link to the Learn page (students). Off for guardians viewing a child. */
+export default function MasteryMap({ data, interactive = true }: { data: MasteryMapData; interactive?: boolean }) {
   const router = useRouter();
 
   const layout = useMemo(() => {
@@ -130,17 +131,21 @@ export default function MasteryMap({ data }: { data: MasteryMapData }) {
             <g
               key={c.id}
               transform={`translate(${p.x} ${p.y})`}
-              role="link"
-              tabIndex={0}
-              aria-label={`${c.name}, ${STATUS_LABEL[c.status]}, ${pctText} mastery. Open in Learn.`}
-              onClick={() => go(c.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  go(c.id);
-                }
-              }}
-              className="cursor-pointer outline-none [&:focus-visible>rect]:stroke-[3]"
+              {...(interactive
+                ? {
+                    role: "link",
+                    tabIndex: 0,
+                    "aria-label": `${c.name}, ${STATUS_LABEL[c.status]}, ${pctText} mastery. Open in Learn.`,
+                    onClick: () => go(c.id),
+                    onKeyDown: (e: KeyboardEvent<SVGGElement>) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        go(c.id);
+                      }
+                    },
+                    className: "cursor-pointer outline-none [&:focus-visible>rect]:stroke-[3]",
+                  }
+                : { role: "img", "aria-label": `${c.name}, ${STATUS_LABEL[c.status]}, ${pctText} mastery.` })}
             >
               <title>{c.name}</title>
               <rect width={NODE_W} height={NODE_H} rx={10} fill="var(--surface)" stroke={color} strokeWidth={2} />

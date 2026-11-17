@@ -1,0 +1,4 @@
+# Secrets and personal data must never be committed.
+.env*
+!.env.production.example
+backups/

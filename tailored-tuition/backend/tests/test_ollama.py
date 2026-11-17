@@ -132,10 +132,11 @@ def test_auto_mode_prefers_key_then_ollama_then_offline(fake):
     )
 
 
-def test_full_tutoring_turn_through_api(fake, client, use_llm, onboarded_student):
+def test_full_tutoring_turn_through_api(fake, use_llm, onboarded_student):
+    client = onboarded_student
     f = fake()
     use_llm(llm_for(f.url))
-    s = client.post("/api/sessions", json={"student_id": onboarded_student["id"], "concept_id": "set_operations"})
+    s = client.post("/api/sessions", json={"concept_id": "set_operations"})
     assert s.status_code == 201, s.text
     t = client.post(
         f"/api/sessions/{s.json()['session_id']}/messages", json={"content": "{1,2,3}", "latency_seconds": 8}

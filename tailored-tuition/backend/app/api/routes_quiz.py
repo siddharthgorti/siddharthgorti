@@ -1,23 +1,25 @@
-"""Adaptive quizzes."""
+"""Adaptive quizzes, for the logged-in student only."""
 
 from fastapi import APIRouter, HTTPException
 
-from app.api.deps import DB, KG, LLM, SettingsDep, concept_out, load_concept, load_student
+from app.api.deps import DB, KG, LLM, SettingsDep, concept_out, load_concept
 from app.api.schemas import AnswerIn, AnswerOut, QuizCreate, QuizOut
 from app.domain.rag_pipeline import retriever
+from app.limits import check_quiz
 from app.llm.client import LLMError
 from app.models import Quiz
 from app.quiz.answer_evaluator import grade
 from app.quiz.quiz_generator import QuizGenerator, public_question
+from app.security.auth import StudentDep
 from app.student.mastery_tracker import MasteryTracker
 
 router = APIRouter(prefix="/api/quiz", tags=["quiz"])
 
 
 @router.post("", response_model=QuizOut, status_code=201)
-def create_quiz(body: QuizCreate, db: DB, kg: KG, llm: LLM, settings: SettingsDep):
-    student = load_student(db, body.student_id)
+def create_quiz(body: QuizCreate, student: StudentDep, db: DB, kg: KG, llm: LLM, settings: SettingsDep):
     concept = load_concept(kg, body.concept_id)
+    check_quiz(db, student.id, settings)
     mastery = MasteryTracker(db).get_level(student.id, concept.id)
     try:
         questions = QuizGenerator(db, llm, retriever, settings).generate(concept, mastery, body.num_questions)
@@ -30,9 +32,9 @@ def create_quiz(body: QuizCreate, db: DB, kg: KG, llm: LLM, settings: SettingsDe
 
 
 @router.post("/{quiz_id}/answers", response_model=AnswerOut)
-def answer(quiz_id: str, body: AnswerIn, db: DB):
+def answer(quiz_id: str, body: AnswerIn, student: StudentDep, db: DB):
     quiz = db.get(Quiz, quiz_id)
-    if quiz is None:
+    if quiz is None or quiz.student_id != student.id:
         raise HTTPException(404, "Quiz not found")
     question = next((q for q in quiz.questions if q["id"] == body.question_id), None)
     if question is None:
@@ -44,6 +46,6 @@ def answer(quiz_id: str, body: AnswerIn, db: DB):
         mastery = tracker.get_level(quiz.student_id, quiz.concept_id)
     else:
         mastery = tracker.update(quiz.student_id, quiz.concept_id, correct, question["difficulty"])
-        quiz.answered = {**quiz.answered, body.question_id: correct}
+        quiz.answered = {**quiz.answered, body.question_id: {"answer": body.answer, "correct": correct}}
     db.commit()
     return {"correct": correct, "correct_answer": key, "explanation": question["explanation"], "mastery_after": mastery}

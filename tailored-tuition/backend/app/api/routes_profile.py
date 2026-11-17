@@ -1,44 +1,20 @@
-"""Students, onboarding and personas."""
+"""Student profile, onboarding and persona. Students are created by their
+guardian (routes_guardian.py); there is no open student sign-up."""
 
 from fastapi import APIRouter, HTTPException
 
-from app.api.deps import DB, SettingsDep, load_student, persona_out, student_out
-from app.api.schemas import (
-    OnboardingResult,
-    OnboardingSubmit,
-    PersonaOut,
-    PersonaUpdate,
-    StudentCreate,
-    StudentOut,
-)
-from app.models import Student, utcnow
+from app.api.deps import DB, load_student, persona_out, require_self, student_out
+from app.api.schemas import OnboardingResult, OnboardingSubmit, PersonaOut, PersonaUpdate, StudentOut
+from app.security.auth import PrincipalDep
 from app.student.personality_model import InvalidAnswersError, match_persona, public_questions
 from app.tutor.persona_manager import PERSONAS
 
 router = APIRouter(prefix="/api", tags=["profile"])
 
 
-@router.post("/students", response_model=StudentOut, status_code=201)
-def create_student(body: StudentCreate, db: DB, settings: SettingsDep):
-    # Students are typically 15-17. India's DPDP Act 2023 requires verifiable
-    # parental consent to process a child's data; this checkbox is the MVP
-    # placeholder for a real verification flow.
-    if not body.guardian_consent:
-        raise HTTPException(400, "A parent or guardian must agree before we can save learning data.")
-    student = Student(
-        name=body.name.strip(),
-        grade=settings.default_grade,
-        board=settings.default_board,
-        guardian_consent_at=utcnow(),
-    )
-    db.add(student)
-    db.commit()
-    return student_out(student)
-
-
 @router.get("/students/{student_id}", response_model=StudentOut)
-def get_student(student_id: str, db: DB):
-    return student_out(load_student(db, student_id))
+def get_student(student_id: str, p: PrincipalDep, db: DB):
+    return student_out(load_student(db, student_id, p))
 
 
 @router.get("/onboarding/questions")
@@ -47,14 +23,15 @@ def onboarding_questions() -> list[dict]:
 
 
 @router.post("/students/{student_id}/onboarding", response_model=OnboardingResult)
-def submit_onboarding(student_id: str, body: OnboardingSubmit, db: DB):
-    student = load_student(db, student_id)
+def submit_onboarding(student_id: str, body: OnboardingSubmit, p: PrincipalDep, db: DB):
+    student = require_self(p, student_id)
     try:
         match = match_persona({a.question_id: a.option_index for a in body.answers})
     except InvalidAnswersError as exc:
         raise HTTPException(422, str(exc)) from exc
+    # Only the chosen persona is stored. Trait scores are returned for the
+    # reveal screen and then discarded (data minimisation for minors).
     student.persona = match.persona
-    student.trait_scores = match.traits
     db.commit()
     return {"persona": persona_out(match.persona), "trait_scores": match.traits, "rationale": match.rationale}
 
@@ -65,8 +42,8 @@ def list_personas():
 
 
 @router.put("/students/{student_id}/persona", response_model=StudentOut)
-def set_persona(student_id: str, body: PersonaUpdate, db: DB):
-    student = load_student(db, student_id)
+def set_persona(student_id: str, body: PersonaUpdate, p: PrincipalDep, db: DB):
+    student = require_self(p, student_id)
     student.persona = body.persona_id
     db.commit()
     return student_out(student)

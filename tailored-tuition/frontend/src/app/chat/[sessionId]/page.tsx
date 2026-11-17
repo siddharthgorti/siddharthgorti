@@ -5,7 +5,7 @@ import { api } from "@/lib/api";
 import type { SessionState } from "@/lib/types";
 import ChatWindow from "@/components/ChatWindow";
 import { ErrorNote, Loading, errorMessage } from "@/components/ui";
-import { useRequiredStudent } from "@/components/StudentProvider";
+import { useRequiredStudent } from "@/components/AuthProvider";
 
 export default function ChatPage({ params }: { params: Promise<{ sessionId: string }> }) {
   const { sessionId } = use(params);

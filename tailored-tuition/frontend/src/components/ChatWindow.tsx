@@ -9,7 +9,7 @@ import Markdown from "./Markdown";
 import MessageBubble from "./MessageBubble";
 import PersonaCard from "./PersonaCard";
 import SessionFlow from "./SessionFlow";
-import { Button, Card, ErrorNote, Meter, errorMessage } from "./ui";
+import { Button, Card, ErrorNote, Meter, errorMessage, isLimit } from "./ui";
 
 const ADVICE_COPY: Record<Exclude<SessionAdvice, "continue">, string> = {
   gentle_check: "Want to keep going or save this for next time?",
@@ -28,6 +28,7 @@ export default function ChatWindow({ initial }: { initial: SessionState }) {
   const [ended, setEnded] = useState(initial.status === "ended");
   const [ending, setEnding] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [limited, setLimited] = useState(false);
 
   const lastTutorAt = useRef<number | null>(null);
   const hiddenSinceTutor = useRef(false);
@@ -75,6 +76,7 @@ export default function ChatWindow({ initial }: { initial: SessionState }) {
     setDraft("");
     setWaiting(true);
     setError(null);
+    setLimited(false);
     try {
       const res = await api.sendMessage(session.session_id, content, latency);
       // `messages` is the pre-send list: the student's message sits at messages.length,
@@ -95,6 +97,7 @@ export default function ChatWindow({ initial }: { initial: SessionState }) {
       setMessages((m) => m.slice(0, -1));
       setDraft(content);
       setError(errorMessage(err));
+      setLimited(isLimit(err));
     } finally {
       setWaiting(false);
       inputRef.current?.focus();
@@ -202,7 +205,7 @@ export default function ChatWindow({ initial }: { initial: SessionState }) {
         </div>
       )}
 
-      <ErrorNote message={error} />
+      <ErrorNote message={error} limit={limited} />
 
       {ended ? (
         !teaser && <p className="text-center text-sm text-muted">This session has ended.</p>

@@ -42,6 +42,8 @@ echo "==> Frontend setup (first run takes a few minutes)"
 (cd frontend && { [ node_modules/.package-lock.json -nt package-lock.json ] || npm ci --no-audit --no-fund; } && npm run build >/dev/null)
 
 echo "==> Starting"
+# Local demos: create demo logins (development only; the backend refuses this in production).
+export SEED_DEMO_ACCOUNTS=true
 (cd backend && exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --log-level warning) &
 BACKEND_PID=$!
 trap 'kill $BACKEND_PID 2>/dev/null' EXIT INT TERM
@@ -56,6 +58,12 @@ echo
 echo "  Tutor AI: $AI_MODE"
 echo "  On this computer:  http://localhost:3000"
 [ -n "$IP" ] && echo "  On a phone (same Wi-Fi):  http://$IP:3000"
+if [ -f backend/data/demo-accounts.txt ]; then
+  echo
+  sed 's/^/  /' backend/data/demo-accounts.txt
+  echo "  (Saved in backend/data/demo-accounts.txt. For real families, sign up as a parent instead.)"
+fi
+echo
 echo "  Stop with Ctrl+C"
 echo
 cd frontend && npx next start -H 0.0.0.0 -p 3000

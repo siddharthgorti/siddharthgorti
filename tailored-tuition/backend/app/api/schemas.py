@@ -18,14 +18,10 @@ class PersonaOut(BaseModel):
     description: str
 
 
-class StudentCreate(BaseModel):
-    name: str = Field(min_length=1, max_length=80)
-    guardian_consent: bool
-
-
 class StudentOut(BaseModel):
     id: str
     name: str
+    username: str
     grade: int
     board: str
     persona: PersonaId | None
@@ -76,8 +72,7 @@ class PhasePlanItem(BaseModel):
 
 
 class SessionCreate(BaseModel):
-    student_id: str
-    concept_id: str
+    concept_id: str = Field(max_length=64)
 
 
 class SessionStateOut(BaseModel):
@@ -125,8 +120,7 @@ class SessionSummaryOut(BaseModel):
 
 
 class QuizCreate(BaseModel):
-    student_id: str
-    concept_id: str
+    concept_id: str = Field(max_length=64)
     num_questions: int = Field(default=5, ge=1, le=10)
 
 

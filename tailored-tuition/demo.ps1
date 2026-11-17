@@ -97,6 +97,8 @@ Pop-Location
 
 # --- Start -----------------------------------------------------------------------
 Step "Starting"
+# Local demos: create demo logins (development only; the backend refuses this in production).
+$env:SEED_DEMO_ACCOUNTS = "true"
 $Backend = Start-Process -PassThru -NoNewWindow `
     -WorkingDirectory (Join-Path $Root "backend") `
     -FilePath $VenvPython `
@@ -137,6 +139,13 @@ if ("$Category" -eq "Public") {
     Write-Host "  Your Wi-Fi is set to 'Public', so Windows will block phones. To allow them:" -ForegroundColor Yellow
     Write-Host "  Settings > Network & internet > Wi-Fi > (your network) > Network profile type: Private." -ForegroundColor Yellow
 }
+$DemoFile = Join-Path $Root "backend\data\demo-accounts.txt"
+if (Test-Path $DemoFile) {
+    Write-Host ""
+    Get-Content $DemoFile | ForEach-Object { Write-Host "  $_" }
+    Write-Host "  (Saved in backend\data\demo-accounts.txt. For real families, sign up as a parent instead.)"
+}
+Write-Host ""
 Write-Host "  Stop with Ctrl+C."
 Write-Host ""
 

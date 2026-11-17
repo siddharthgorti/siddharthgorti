@@ -15,10 +15,29 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.13" }
       - run: pip install -r requirements-dev.txt
-      - run: ruff check app tests evals && ruff format --check app tests evals
+      - run: ruff check app tests evals migrations && ruff format --check app tests evals migrations
       - run: pytest
       - name: Known-vulnerability check (fails on any CVE in pinned packages)
         run: pip-audit -r requirements.txt --progress-spinner off
+  backend-postgres:
+    # The same suite against real Postgres (production's database), via migrations.
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: tailored-tuition/backend } }
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_USER: tt, POSTGRES_PASSWORD: tt-ci-only, POSTGRES_DB: tt_test }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U tt" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://tt:tt-ci-only@localhost:5432/tt_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.13" }
+      - run: pip install -r requirements-dev.txt
+      - run: pytest
   frontend:
     runs-on: ubuntu-latest
     defaults: { run: { working-directory: tailored-tuition/frontend } }

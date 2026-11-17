@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
+import { ApiError } from "@/lib/api";
 
 type Variant = "primary" | "secondary" | "ghost";
 
@@ -29,14 +30,25 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
   );
 }
 
-export function ErrorNote({ message }: { message: string | null }) {
+/**
+ * An error for the user. Usage limits (HTTP 429) are not failures, so they get a calm,
+ * neutral style; everything else uses the danger colour.
+ */
+export function ErrorNote({ message, limit = false }: { message: string | null; limit?: boolean }) {
   if (!message) return null;
-  return (
+  return limit ? (
+    <p role="alert" className="rounded-lg bg-warn-soft px-3 py-2 text-sm text-warn-fg">
+      {message}
+    </p>
+  ) : (
     <p role="alert" className="rounded-lg border border-danger/40 px-3 py-2 text-sm text-danger">
       {message}
     </p>
   );
 }
+
+/** True for usage-limit / lockout responses (HTTP 429). */
+export const isLimit = (e: unknown) => e instanceof ApiError && e.status === 429;
 
 export function Meter({ value, label }: { value: number; label: string }) {
   const v = Math.max(0, Math.min(1, value));

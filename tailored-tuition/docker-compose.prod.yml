@@ -1,0 +1,103 @@
+# Production stack: Caddy (HTTPS) -> Next.js frontend -> FastAPI backend -> Postgres.
+# Run it through the wrapper, which supplies the env file:
+#   ./deploy/compose.sh up -d --build
+# See docs/DEPLOY.md.
+name: tailored-tuition
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "5" }
+
+x-hardening: &hardening
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+
+services:
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in deploy/.env.production}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL in deploy/.env.production}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [frontend]
+    networks: [web]
+    security_opt: ["no-new-privileges:true"]
+    logging: *logging
+
+  frontend:
+    build:
+      context: frontend
+      args: { BACKEND_URL: "http://backend:8000" }
+    restart: unless-stopped
+    depends_on:
+      backend: { condition: service_healthy }
+    networks: [web, app]
+    <<: *hardening
+    logging: *logging
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    env_file: [deploy/.env.production]
+    environment:
+      # Always production here: the backend refuses to start with unsafe settings.
+      APP_ENV: production
+      # Built from the POSTGRES_* values so the password lives in one place.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:?Set POSTGRES_USER}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:?Set POSTGRES_DB}
+    volumes:
+      - backend_data:/app/backend/data
+    tmpfs:
+      - /tmp
+    depends_on:
+      db: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 40s
+      retries: 3
+    # `app` allows outbound internet (Claude API, SMTP); `data` reaches the database.
+    networks: [app, data]
+    <<: *hardening
+    logging: *logging
+
+  db:
+    image: postgres:16-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    # Internal-only network: no published ports, no internet access.
+    networks: [data]
+    security_opt: ["no-new-privileges:true"]
+    logging: *logging
+
+networks:
+  web: {}
+  app: {}
+  data:
+    internal: true
+
+volumes:
+  caddy_data: {}
+  caddy_config: {}
+  backend_data: {}
+  pgdata: {}

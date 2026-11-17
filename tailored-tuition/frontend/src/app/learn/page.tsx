@@ -6,8 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "@/lib/api";
 import { pct } from "@/lib/format";
 import type { Concept, MasteryMap } from "@/lib/types";
-import { Button, Card, ErrorNote, Loading, Meter, errorMessage } from "@/components/ui";
-import { useRequiredStudent } from "@/components/StudentProvider";
+import { Button, Card, ErrorNote, Loading, Meter, errorMessage, isLimit } from "@/components/ui";
+import { useRequiredStudent } from "@/components/AuthProvider";
 
 export default function LearnPage() {
   const student = useRequiredStudent();
@@ -16,6 +16,7 @@ export default function LearnPage() {
   const [map, setMap] = useState<MasteryMap | null>(null);
   const [starting, setStarting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [limited, setLimited] = useState(false);
 
   useEffect(() => {
     if (!student) return;
@@ -58,11 +59,13 @@ export default function LearnPage() {
     if (!student) return;
     setStarting(conceptId);
     setError(null);
+    setLimited(false);
     try {
-      const s = await api.createSession(student.id, conceptId);
+      const s = await api.createSession(conceptId);
       router.push(`/chat/${s.session_id}`);
     } catch (e) {
       setError(errorMessage(e));
+      setLimited(isLimit(e));
       setStarting(null);
     }
   }
@@ -78,7 +81,7 @@ export default function LearnPage() {
           places to start if something feels shaky.
         </p>
       </div>
-      <ErrorNote message={error} />
+      <ErrorNote message={error} limit={limited} />
       {!concepts ? (
         !error && <Loading />
       ) : (

@@ -7,8 +7,8 @@ import { api } from "@/lib/api";
 import { pct } from "@/lib/format";
 import type { AnswerResult, Quiz } from "@/lib/types";
 import QuizCard from "@/components/QuizCard";
-import { Card, ErrorNote, Loading, Meter, errorMessage } from "@/components/ui";
-import { useRequiredStudent } from "@/components/StudentProvider";
+import { Card, ErrorNote, Loading, Meter, errorMessage, isLimit } from "@/components/ui";
+import { useRequiredStudent } from "@/components/AuthProvider";
 
 function QuizFlow() {
   const conceptId = useSearchParams().get("concept");
@@ -18,6 +18,7 @@ function QuizFlow() {
   const [results, setResults] = useState<Record<string, AnswerResult>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [limited, setLimited] = useState(false);
   const [answerError, setAnswerError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
   const requested = useRef(false);
@@ -27,9 +28,12 @@ function QuizFlow() {
     if (!student || !conceptId || requested.current) return;
     requested.current = true;
     api
-      .createQuiz(student.id, conceptId)
+      .createQuiz(conceptId)
       .then(setQuiz)
-      .catch((e) => setError(errorMessage(e)));
+      .catch((e) => {
+        setError(errorMessage(e));
+        setLimited(isLimit(e));
+      });
   }, [student, conceptId]);
 
   if (!conceptId) {
@@ -39,7 +43,15 @@ function QuizFlow() {
       </p>
     );
   }
-  if (error) return <ErrorNote message={error} />;
+  if (error)
+    return (
+      <div className="space-y-3">
+        <ErrorNote message={error} limit={limited} />
+        <Link href="/learn" className="text-sm text-accent underline">
+          Back to topics
+        </Link>
+      </div>
+    );
   if (!student || !quiz) return <Loading label="Preparing questions at your level…" />;
 
   const question = quiz.questions[index];

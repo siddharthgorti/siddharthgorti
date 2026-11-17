@@ -1,4 +1,4 @@
-// Mirrors docs/API.md (contract v1). Keep in sync with the backend.
+// Mirrors docs/API.md (contract v2: accounts and consent). Keep in sync with the backend.
 
 export type PersonaId = "coach" | "challenger" | "explainer" | "mentor";
 
@@ -9,13 +9,38 @@ export interface Persona {
   description: string;
 }
 
+export interface Guardian {
+  id: string;
+  name: string;
+  email: string;
+  /** Must be true before the guardian can add children. */
+  email_verified: boolean;
+  /** May upload syllabus files. */
+  is_admin: boolean;
+  created_at: string;
+}
+
 export interface Student {
   id: string;
   name: string;
+  username: string;
   grade: number;
   board: string;
   persona: PersonaId | null;
   created_at: string;
+}
+
+export interface ChildSummary extends Student {
+  overall_progress: number;
+  mastered: number;
+  last_active: string | null;
+}
+
+export type Me = { role: "guardian"; guardian: Guardian } | { role: "student"; student: Student };
+
+export interface PrivacyPolicy {
+  version: string;
+  updated: string;
 }
 
 export interface OnboardingQuestion {

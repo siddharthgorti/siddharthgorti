@@ -1,5 +1,21 @@
+# Build context for backend/Dockerfile is the repository root.
+.git
 **/.venv
 **/node_modules
 **/.next
-backend/data
 **/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+# Never bake secrets or local data into an image.
+**/.env
+**/.env.*
+deploy/
+deploy/backups/
+backend/data
+**/*.db
+# Not needed at runtime.
+backend/tests
+backend/evals
+frontend
+docs

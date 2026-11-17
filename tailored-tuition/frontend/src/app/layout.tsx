@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "katex/dist/katex.min.css";
 import "./globals.css";
 import Nav from "@/components/Nav";
-import { StudentProvider } from "@/components/StudentProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Tailored Tuition",
@@ -22,10 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className="min-h-dvh">
-        <StudentProvider>
+        <AuthProvider>
           <Nav />
           <main className="mx-auto w-full max-w-4xl px-4 py-6">{children}</main>
-        </StudentProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -31,7 +31,7 @@ def test_bounds():
 
 def test_tracker_persists(db, onboarded_student):
     t = MasteryTracker(db)
-    sid = onboarded_student["id"]
+    sid = onboarded_student.student["id"]
     assert t.get_level(sid, "sets_basics") == 0.0
     new = t.update(sid, "sets_basics", True, 0.5)
     db.commit()

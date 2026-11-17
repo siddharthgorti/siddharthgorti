@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import type { OnboardingQuestion, OnboardingResult, Persona, PersonaId, Trait } from "@/lib/types";
 import { Button, Card, ErrorNote, Loading, Meter, errorMessage } from "@/components/ui";
 import PersonaCard from "@/components/PersonaCard";
-import { useRequiredStudent, useStudentContext } from "@/components/StudentProvider";
+import { useAuth, useRequiredStudent } from "@/components/AuthProvider";
 
 const TRAIT_LABEL: Record<Trait, string> = {
   openness: "Curiosity / openness",
@@ -18,7 +18,7 @@ const TRAIT_LABEL: Record<Trait, string> = {
 
 export default function OnboardingPage() {
   const student = useRequiredStudent({ requirePersona: false });
-  const { setStudent } = useStudentContext();
+  const { setMe } = useAuth();
   const router = useRouter();
 
   const [questions, setQuestions] = useState<OnboardingQuestion[] | null>(null);
@@ -47,7 +47,7 @@ export default function OnboardingPage() {
         questions.map((q) => ({ question_id: q.id, option_index: final[q.id] })),
       );
       setResult(res);
-      setStudent({ ...student, persona: res.persona.id });
+      setMe({ role: "student", student: { ...student, persona: res.persona.id } });
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -79,7 +79,7 @@ export default function OnboardingPage() {
     setError(null);
     try {
       const s = await api.setPersona(student.id, id);
-      setStudent(s);
+      setMe({ role: "student", student: s });
       router.push("/learn");
     } catch (e) {
       setError(errorMessage(e));

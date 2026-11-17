@@ -29,8 +29,27 @@ class Settings(BaseSettings):
     enable_refusal_fallbacks: bool = True
 
     database_url: str = f"sqlite:///{BACKEND_DIR / 'data' / 'tuition.db'}"
-    upload_dir: Path = BACKEND_DIR / "data" / "uploads"
+    data_dir: Path = BACKEND_DIR / "data"
     max_upload_mb: int = 20
+
+    # Accounts, email and security (see docs/API.md "Configuration").
+    app_env: str = "development"  # "development" | "production"
+    public_url: str = "http://localhost:3000"
+    email_backend: str = "console"  # "console" | "smtp"
+    smtp_host: str | None = None
+    smtp_port: int = 587
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str | None = None
+    cookie_secure: bool = False
+    admin_emails: str = ""  # comma-separated
+    privacy_policy_version: str = "2026-11-17"
+    guardian_session_days: int = 14
+    student_session_days: int = 30
+    max_messages_per_day: int = 200
+    max_sessions_per_day: int = 30
+    max_quizzes_per_day: int = 20
+    seed_demo_accounts: bool = False
 
     cors_origins: list[str] = ["http://localhost:3000"]
 
@@ -41,6 +60,34 @@ class Settings(BaseSettings):
     max_turns_per_session: int = 50
     history_turns_in_prompt: int = 12  # recent messages sent to the LLM
     rag_top_k: int = 4
+
+    @property
+    def admin_email_set(self) -> set[str]:
+        return {e.strip().lower() for e in self.admin_emails.split(",") if e.strip()}
+
+    @property
+    def dev_links_enabled(self) -> bool:
+        """Return verification/reset links in API responses: local development only."""
+        return self.app_env == "development" and self.email_backend == "console"
+
+    def production_problems(self) -> list[str]:
+        """Settings that would be unsafe in production (empty list = OK)."""
+        if self.app_env != "production":
+            return []
+        problems = []
+        if self.email_backend != "smtp":
+            problems.append("EMAIL_BACKEND must be 'smtp'")
+        elif not (self.smtp_host and self.smtp_from):
+            problems.append("SMTP_HOST and SMTP_FROM must be set")
+        if not self.cookie_secure:
+            problems.append("COOKIE_SECURE must be true")
+        if not self.public_url.startswith("https://"):
+            problems.append("PUBLIC_URL must start with https://")
+        if self.database_url.startswith("sqlite"):
+            problems.append("DATABASE_URL must be Postgres, not SQLite")
+        if self.seed_demo_accounts:
+            problems.append("SEED_DEMO_ACCOUNTS must be false")
+        return problems
 
     @property
     def resolved_llm_mode(self) -> str:

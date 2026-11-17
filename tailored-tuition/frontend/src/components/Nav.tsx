@@ -1,26 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useStudentContext } from "./StudentProvider";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { useAuth } from "./AuthProvider";
 
-const LINKS = [
+const STUDENT_LINKS = [
   { href: "/learn", label: "Learn" },
   { href: "/progress", label: "Progress" },
+];
+const GUARDIAN_LINKS = [
+  { href: "/guardian", label: "Dashboard" },
+  { href: "/privacy", label: "Privacy" },
 ];
 
 export default function Nav() {
   const pathname = usePathname();
-  const router = useRouter();
-  const { student, signOut } = useStudentContext();
+  const { me, logout } = useAuth();
+  const [leaving, setLeaving] = useState(false);
 
-  // Lets someone else try the app on the same device (e.g. in-person demos).
-  // Progress stays saved on the server; this device just stops remembering it.
-  const startNewStudent = () => {
-    if (!window.confirm(`Start as a new student? ${student?.name ?? "This student"}'s progress stays saved.`)) return;
-    signOut();
-    router.push("/");
-  };
+  const links =
+    me?.role === "student" ? (me.student.persona ? STUDENT_LINKS : []) : me?.role === "guardian" ? GUARDIAN_LINKS : [];
+  const name = me?.role === "student" ? me.student.name : me?.role === "guardian" ? me.guardian.name : null;
 
   return (
     <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur">
@@ -33,36 +34,48 @@ export default function Nav() {
             Tailored<span className="text-accent"> Tuition</span>
           </span>
         </Link>
-        {student?.persona &&
-          LINKS.map((l) => {
-            const active = pathname.startsWith(l.href);
-            return (
-              <Link
-                key={l.href}
-                href={l.href}
-                aria-current={active ? "page" : undefined}
-                className={`rounded-md px-2.5 py-1.5 text-sm ${
-                  active ? "bg-accent-soft font-medium text-fg" : "text-muted hover:text-fg"
-                }`}
-              >
-                {l.label}
-              </Link>
-            );
-          })}
-        {student && (
-          <button
-            type="button"
-            onClick={startNewStudent}
-            title="Start as a new student"
-            aria-label={`Signed in as ${student.name}. Start as a new student`}
-            className="ml-auto flex min-w-0 items-center gap-1.5 rounded-md border border-border px-2 py-1 text-sm text-muted hover:text-fg focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent"
-          >
-            <span className="max-w-[7rem] truncate">{student.name}</span>
-            <span aria-hidden="true" className="shrink-0 text-xs">
-              ⇄<span className="hidden sm:inline"> New student</span>
+        {links.map((l) => {
+          const active = pathname.startsWith(l.href);
+          return (
+            <Link
+              key={l.href}
+              href={l.href}
+              aria-current={active ? "page" : undefined}
+              className={`shrink-0 rounded-md px-2 py-1.5 text-sm ${
+                active ? "bg-accent-soft font-medium text-fg" : "text-muted hover:text-fg"
+              }`}
+            >
+              {l.label}
+            </Link>
+          );
+        })}
+        <div className="ml-auto flex min-w-0 items-center gap-2 pl-1">
+          {me && name && (
+            <span className="min-w-0 max-w-[6rem] truncate text-sm text-muted sm:max-w-[10rem]" title={name}>
+              {name}
             </span>
-          </button>
-        )}
+          )}
+          {me ? (
+            <button
+              type="button"
+              disabled={leaving}
+              onClick={() => {
+                setLeaving(true);
+                void logout().finally(() => setLeaving(false));
+              }}
+              className="shrink-0 rounded-md border border-border px-2 py-1 text-sm text-muted hover:text-fg disabled:opacity-50"
+            >
+              Log out
+            </button>
+          ) : (
+            me === null &&
+            pathname !== "/login" && (
+              <Link href="/login" className="shrink-0 rounded-md border border-border px-2 py-1 text-sm text-muted hover:text-fg">
+                Log in
+              </Link>
+            )
+          )}
+        </div>
       </nav>
     </header>
   );

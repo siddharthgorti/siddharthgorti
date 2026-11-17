@@ -1,0 +1,27 @@
+# HTTPS front door. Caddy obtains and renews Let's Encrypt certificates automatically.
+# DOMAIN and ACME_EMAIL come from deploy/.env.production (passed in by docker-compose.prod.yml).
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	request_body {
+		max_size 25MB
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+
+	reverse_proxy frontend:3000
+}

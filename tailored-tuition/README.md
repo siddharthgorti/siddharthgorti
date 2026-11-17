@@ -20,6 +20,10 @@ in [`docs/SPEC_REVIEW.md`](docs/SPEC_REVIEW.md).
 | Adaptive quizzes with validated answer keys and deterministic grading | `backend/app/quiz/` |
 | Upload a syllabus PDF / TXT / MD; it's chunked, tagged to concepts and indexed | `backend/app/domain/` |
 | Dark-pattern guardrails enforced in code and in the prompt | `engagement/guardrails.py` |
+| Parent/guardian accounts, verified email, recorded consent, child logins | `backend/app/api/routes_auth.py`, `routes_guardian.py` |
+| Data export and permanent deletion; trait scores never stored | `routes_guardian.py`, `models.py` |
+| Every endpoint checks who's asking; daily usage limits; login lockout | `backend/app/security/`, `limits.py` |
+| Postgres + migrations; HTTPS deployment with Caddy | `backend/migrations/`, `docker-compose.prod.yml`, [`docs/DEPLOY.md`](docs/DEPLOY.md) |
 
 **Website or app?** It's a website, built mobile-first. Students mostly use phones, and a responsive
 site works on every phone and laptop with no app-store review. If you later want an installable app,
@@ -56,8 +60,14 @@ script prints two addresses:
   phones. On Windows this needs your Wi-Fi set to **Private** (the script warns you if it's Public).
   Public or guest Wi-Fi often blocks device-to-device traffic; a phone hotspot works.
 
-**Showing it to several people:** tap your name (top right) → *New student*, so each person gets
-their own onboarding and progress. Earlier students' progress stays saved.
+**Logging in.** Families use real accounts: a parent or guardian signs up, verifies their email,
+gives consent and creates a login for each child. For demos, the script also creates **demo
+logins** (one guardian, three students: `demo1`–`demo3`) and prints them when it starts; they're
+saved in `backend/data/demo-accounts.txt`. Hand each person a different student login, and use
+**Log out** between people on one device. Demo logins exist only in local development.
+
+On your own laptop no email is actually sent, so the "Check your email" screen shows a
+**Dev mode: verify email now** button instead. Real email is set up when you deploy.
 
 **Which AI does the tutoring?** The website runs on your laptop, but the tutoring needs an AI model.
 The app uses the first of these it finds, and the start script prints which one (`Tutor AI: ...`):
@@ -165,11 +175,20 @@ included but haven't been built in CI yet).
 ## Tests and checks
 
 ```bash
-cd backend && pytest && ruff check app tests evals    # 105 tests
+cd backend && pytest && ruff check app tests evals migrations    # 149 tests
+DATABASE_URL=postgresql+psycopg://user:pass@localhost/tt_test pytest   # same suite on Postgres
 cd frontend && npm run lint && npm run typecheck && npm run build
 ```
 
-GitHub Actions runs both on every change under `tailored-tuition/`.
+GitHub Actions runs both on every change, plus the backend suite on Postgres 16, `pip-audit` and
+`npm audit` (also weekly). Dependabot opens weekly dependency-update pull requests.
+
+## Deploying for real students
+
+See [`docs/DEPLOY.md`](docs/DEPLOY.md): one small server, Docker, automatic HTTPS (Caddy),
+Postgres with daily backups. The backend **refuses to start in production** unless email, HTTPS
+cookies, an `https://` address and Postgres are configured. Work through the pre-launch checklist in
+that guide first, including a legal review of the consent flow.
 
 ## Architecture
 
@@ -188,14 +207,20 @@ API contract: [`docs/API.md`](docs/API.md).
 
 ## Known limitations (MVP)
 
-- **No real authentication.** The student id lives in the browser. Add accounts before any real
-  deployment.
-- **The guardian-consent checkbox is a placeholder** for verifiable parental consent (India's DPDP
-  Act 2023 applies to under-18s).
+- **Consent is recorded, not verified.** A guardian confirms they're the parent with a checkbox,
+  backed by a verified email address. India's DPDP Act requires *verifiable* parental consent for
+  under-18s, and email alone may not meet the rules. Get legal advice; a stronger check (for example
+  DigiLocker-based age verification) may be needed before launch.
+- **The privacy notice has placeholders** (organisation name, contact email) to fill in before
+  launch, and it hasn't been reviewed by a lawyer.
+- **One server, one backend process.** Login lockouts are kept in memory; scaling to several
+  processes means moving them to the database or Redis. No monitoring beyond logs (see DEPLOY.md).
+- **The deployment setup hasn't been run in containers yet.** It's validated, but the first real
+  deploy is its first run.
 - **PDF maths extraction is lossy** (fractions and superscripts flatten). Prose retrieval works;
   equation fidelity needs an OCR/LaTeX step.
-- **LLM answer keys can still be wrong.** Items are structurally validated, not independently solved.
+- **AI answer keys and marking can still be wrong.** Items are structurally validated, not
+  independently solved. Measure with the answer-checking eval.
 - **The concept graph is hand-curated** from the NCERT Class 11 chapter structure. Check it against
   the current edition.
 - **Phase 2 stubs** (`classroom/`, BKT in `knowledge_tracing.py`, the strategizer) are placeholders.
-- **SQLite on free hosting tiers is ephemeral.** Use Postgres in production.
