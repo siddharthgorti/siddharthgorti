@@ -81,8 +81,12 @@ $NodeMajor = [int]((& node -v).TrimStart("v").Split(".")[0])
 if ($NodeMajor -lt 20) { Fail "Node.js 20 or newer is required (you have $(& node -v)). Install the LTS version from https://nodejs.org/" }
 
 Push-Location (Join-Path $Root "frontend")
-if (-not (Test-Path node_modules)) {
-    Step "Installing frontend packages (first run only, a few minutes)"
+# Reinstall when the lockfile changed since the last install (e.g. after git pull),
+# so security updates to frontend packages actually reach this machine.
+$Stale = -not (Test-Path node_modules\.package-lock.json)
+if (-not $Stale) { $Stale = (Get-Item package-lock.json).LastWriteTime -gt (Get-Item node_modules\.package-lock.json).LastWriteTime }
+if ($Stale) {
+    Step "Installing frontend packages (first run or after an update, a few minutes)"
     & npm ci --no-audit --no-fund
     if ($LASTEXITCODE -ne 0) { Pop-Location; Fail "Installing frontend packages failed (see the messages above)." }
 }

@@ -37,7 +37,9 @@ else
 fi
 
 echo "==> Frontend setup (first run takes a few minutes)"
-(cd frontend && { [ -d node_modules ] || npm ci --no-audit --no-fund; } && npm run build >/dev/null)
+# Reinstall when the lockfile changed since the last install (e.g. after git pull),
+# so security updates to frontend packages actually reach this machine.
+(cd frontend && { [ node_modules/.package-lock.json -nt package-lock.json ] || npm ci --no-audit --no-fund; } && npm run build >/dev/null)
 
 echo "==> Starting"
 (cd backend && exec .venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --log-level warning) &
